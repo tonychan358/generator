@@ -1,0 +1,3352 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">通用跨學科翻卡溫習產生器 (General Flashcard Generator)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-light: #e0f2fe;
+      --bg-gradient-start: #f8fafc;
+      --bg-gradient-end: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      
+      --font-outfit: 'Outfit', 'Noto Sans TC', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-outfit);
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 2rem auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+
+    .header-text h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .header-text h1 span {
+      background: linear-gradient(90deg, var(--primary-color), #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-text p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    .lang-switcher-btn {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-family: var(--font-outfit);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.2);
+      transition: all 0.2s;
+    }
+
+    .lang-switcher-btn:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 1.25rem;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card:hover {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .card-title .step-badge {
+      background: var(--primary-color);
+      color: white;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    input[type="text"], select, textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border-color);
+      font-family: var(--font-outfit);
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background-color: #f8fafc;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    input[type="text"]:focus, select:focus, textarea:focus {
+      border-color: var(--primary-color);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    textarea {
+      height: 250px;
+      resize: vertical;
+      font-family: monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .textarea-label-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-secondary {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.375rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 0.85rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      margin-top: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.2);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px -1px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .guide-step {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .guide-step:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .guide-num {
+      background: #f1f5f9;
+      color: var(--text-muted);
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 0.2rem;
+    }
+
+    .guide-text h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .guide-text p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .format-hint {
+      background-color: #f8fafc;
+      border-left: 4px solid var(--primary-color);
+      padding: 0.75rem 1rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+    }
+
+    .format-hint code {
+      background: #e2e8f0;
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.2rem;
+      font-family: monospace;
+      color: #0f172a;
+    }
+
+    .toast-error {
+      background-color: #fef2f2;
+      border: 1px solid #fee2e2;
+      color: #b91c1c;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    footer {
+      max-width: 1200px;
+      margin: 3rem auto 0 auto;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-text">
+      <h1 id="header-title-container"><span>通用跨學科翻卡溫習產生器</span></h1>
+      <p id="header-desc-container">自訂語音朗讀與主題配色。一鍵下載 100% 離線可用 HTML 檔案，極易嵌入 Google Sites。</p>
+    </div>
+    <button class="lang-switcher-btn" onclick="toggleLanguage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+      </svg>
+      <span id="lang-btn-text">English</span>
+    </button>
+  </header>
+
+  <main class="container">
+    <!-- Left column: config and lists -->
+    <section>
+      <!-- Step 1: Config -->
+      <div class="card">
+        <h2 class="card-title">
+          <span class="step-badge">1</span>
+          <span data-i18n="step1Title">設定學科與溫習屬性</span>
+        </h2>
+        
+        <!-- 溫習模式設定 -->
+        <div class="form-row" style="grid-template-columns: 1fr; margin-bottom: 1.25rem;">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="study-mode" data-i18n="lblStudyMode">溫習模式 (Study Mode)</label>
+            <select id="study-mode" onchange="toggleStudyMode()">
+              <option value="chinese" data-i18n="modeZh">中文版</option>
+              <option value="english" data-i18n="modeEn">英文版</option>
+              <option value="bilingual" data-i18n="modeBilingual">中英切換</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 中文科目與標題 (chinese 或 bilingual 模式下顯示) -->
+        <div class="form-row" id="row-zh-fields">
+          <div class="form-group" id="group-subject-zh">
+            <label for="dict-subject-zh" data-i18n="lblSubjectZh">科目/練習範疇 (中文)</label>
+            <input type="text" id="dict-subject-zh" placeholder="例如：中三級經濟科">
+          </div>
+          <div class="form-group" id="group-title-zh">
+            <label for="dict-title-zh" data-i18n="lblTitleZh">練習標題 (中文)</label>
+            <input type="text" id="dict-title-zh" placeholder="例如：經濟學基礎概念溫習">
+          </div>
+        </div>
+
+        <!-- 英文科目與標題 (english 或 bilingual 模式下顯示) -->
+        <div class="form-row" id="row-en-fields" style="display: none;">
+          <div class="form-group" id="group-subject-en">
+            <label for="dict-subject-en" data-i18n="lblSubjectEn">科目/練習範疇 (英文)</label>
+            <input type="text" id="dict-subject-en" placeholder="e.g., S3 Economics">
+          </div>
+          <div class="form-group" id="group-title-en">
+            <label for="dict-title-en" data-i18n="lblTitleEn">練習標題 (英文)</label>
+            <input type="text" id="dict-title-en" placeholder="e.g., Economics Core Concepts Revision">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="export-filename" data-i18n="lblFilename">匯出檔案名稱</label>
+            <input type="text" id="export-filename" placeholder="例如：economics_flashcards_u1">
+          </div>
+          <div class="form-group">
+            <label for="theme-color" data-i18n="lblTheme">主題配色</label>
+            <select id="theme-color">
+              <option value="sky-blue" data-i18n="themeBlue">科技藍</option>
+              <option value="classic-green" data-i18n="themeGreen">翡翠綠</option>
+              <option value="vibrant-orange" data-i18n="themeOrange">朝陽橘</option>
+              <option value="elegant-purple" data-i18n="themePurple">薰衣紫</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tts-setting" data-i18n="lblTts">語音發音設定</label>
+            <select id="tts-setting" onchange="toggleTtsFace()">
+              <option value="none" data-i18n="ttsNone">關閉語音朗讀 (None)</option>
+              <option value="enabled" data-i18n="ttsEnabled">開啟語音朗讀 (廣東話 / 英語)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="tts-face" data-i18n="lblTtsFace">朗讀卡面設定</label>
+            <select id="tts-face" disabled>
+              <option value="front" data-i18n="ttsFaceFront">僅正面朗讀</option>
+              <option value="back" data-i18n="ttsFaceBack">僅背面朗讀</option>
+              <option value="both" data-i18n="ttsFaceBoth">雙面皆可朗讀</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Input materials -->
+      <div class="card">
+        <h2 class="card-title">
+          <span class="step-badge">2</span>
+          <span data-i18n="step2Title">貼入題庫資料</span>
+        </h2>
+        
+        <div class="textarea-container">
+          <div>
+            <div class="textarea-label-wrapper">
+              <label for="dict-questions" id="lbl-questions-prompt" data-i18n="lblQuestions">請貼入字卡正面與背面內容 (Excel 直接複製兩欄 TSV)：</label>
+              <button class="btn-secondary" id="btn-load-example" onclick="loadExample()" data-i18n="btnLoadExample">載入經濟科範例</button>
+            </div>
+            <textarea id="dict-questions" placeholder="正面內容&#9;背面內容&#10;(從 Excel 複製兩欄貼到這裡，兩欄之間必須是定位符 Tab)"></textarea>
+          </div>
+        </div>
+
+        <div class="format-hint" id="format-hint-box">
+          <strong>Excel 貼入小技巧：</strong> 在 Excel 中準備兩欄：
+          <code>A 欄：卡牌正面內容（如名詞 Opportunity Cost）</code>，<code>B 欄：卡牌背面內容（如解釋「機會成本」）</code>。
+          直接選取資料行並複製，貼到上方文字框即可。
+        </div>
+
+        <div class="toast-error" id="error-message"></div>
+      </div>
+    </section>
+
+    <!-- Right column: compilation & guidance -->
+    <section>
+      <!-- Step 3 Card -->
+      <div class="card">
+        <h2 class="card-title">
+          <span class="step-badge">3</span>
+          <span data-i18n="step3Title">打包建置與匯出</span>
+        </h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;" id="step3-desc">
+          點擊下方按鈕，系統將自動合成字卡題庫、主題配色、發音設定及 A4 證書列印模組，匯出為一個獨立的 HTML 網頁。
+        </p>
+        
+        <button class="btn-primary" id="btn-download" onclick="generateAndDownload()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span id="btn-download-text">下載單一獨立 HTML 檔案</span>
+        </button>
+      </div>
+
+      <!-- Google Sites guide -->
+      <div class="card">
+        <h2 class="card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span data-i18n="guideTitle">Google Sites 嵌入操作指南</span>
+        </h2>
+        
+        <div class="guide-step">
+          <div class="guide-num">1</div>
+          <div class="guide-text">
+            <h4 id="g-step1-h">設定並下載</h4>
+            <p id="g-step1-p">填寫學科、練習標題，調整配色並貼入 Excel 資料。點擊「下載單一獨立 HTML 檔案」。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">2</div>
+          <div class="guide-text">
+            <h4 id="g-step2-h">複製 HTML 代碼</h4>
+            <p id="g-step2-p">使用純文字編輯器（如記事本 Notepad、VS Code）打開下載的 <code>.html</code> 檔案，按 <code>Ctrl + A</code> 全選，並用 <code>Ctrl + C</code> 複製。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">3</div>
+          <div class="guide-text">
+            <h4 id="g-step3-h">在 Google Sites 新增全頁嵌入網頁</h4>
+            <p id="g-step3-p">打開您的 Google Sites 協作平台編輯介面。在右側面板切換至「頁面」分頁，將滑鼠懸停在底部的「+」號上，點擊「新增全頁嵌入網頁」 (</> 標籤)。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">4</div>
+          <div class="guide-text">
+            <h4 id="g-step4-h">貼上 HTML 程式碼</h4>
+            <p id="g-step4-p">輸入頁面名稱（如：字卡複習）並點擊「完成」。在頁面中點擊「新增嵌入內容」，切換至「嵌入程式碼」分頁並貼入剛才複製的程式碼，點擊「下一步」並按「插入」。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">5</div>
+          <div class="guide-text">
+            <h4 id="g-step5-h">發佈並與學生分享</h4>
+            <p id="g-step5-p">全頁嵌入會自動 100% 填滿整個瀏覽器畫面，無需手動調整高度。最後點擊右上角的「發佈」按鈕，即可將網頁分享給學生！</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p id="footer-text">香港道教聯合會圓玄學院第三中學 · HKTA The Yuen Yuen Institute No.3 Secondary School · AI in Education</p>
+  </footer>
+
+  <script>
+    // 當前語言設定 (zh / en)
+    let currentLang = 'zh';
+
+    const translations = {
+      'zh': {
+        pageTitle: '通用跨學科翻卡溫習產生器 (General Flashcard Generator)',
+        headerTitle: '<span>通用跨學科翻卡溫習產生器</span>',
+        headerDesc: '自訂語音朗讀與主題配色。一鍵下載 100% 離線可用 HTML 檔案，極易嵌入 Google Sites。',
+        langBtnText: 'English',
+        step1Title: '設定學科與溫習屬性',
+        lblStudyMode: '溫習模式 (Study Mode)',
+        modeZh: '中文版',
+        modeEn: '英文版',
+        modeBilingual: '中英切換',
+        lblSubjectZh: '科目/練習範疇 (中文)',
+        placeholderSubjectZh: '例如：中三級經濟科',
+        lblSubjectEn: '科目/練習範疇 (英文)',
+        placeholderSubjectEn: 'e.g., S3 Economics',
+        lblTitleZh: '練習標題 (中文)',
+        placeholderTitleZh: '例如：經濟學基礎概念溫習',
+        lblTitleEn: '練習標題 (英文)',
+        placeholderTitleEn: 'e.g., Economics Core Concepts Revision',
+        lblFilename: '匯出檔案名稱',
+        placeholderFilename: '例如：economics_flashcards_u1',
+        lblTheme: '主題配色',
+        themeBlue: '科技藍',
+        themeGreen: '翡翠綠',
+        themeOrange: '朝陽橘',
+        themePurple: '薰衣紫',
+        lblTts: '語音發音設定',
+        ttsNone: '關閉語音朗讀 (None)',
+        ttsEnabled: '開啟語音朗讀 (廣東話 / 英語)',
+        lblTtsFace: '朗讀卡面設定',
+        ttsFaceFront: '僅正面朗讀',
+        ttsFaceBack: '僅背面朗讀',
+        ttsFaceBoth: '雙面皆可朗讀',
+        step2Title: '貼入題庫資料',
+        lblQuestions2Col: '請貼入字卡正面與背面內容 (Excel 直接複製兩欄 TSV)：',
+        lblQuestions4Col: '請貼入字卡中英雙語正面與背面內容 (Excel 直接複製四欄 TSV)：',
+        btnLoadExample: '載入經濟科範例',
+        placeholderQuestions2Col: "正面內容\t背面內容\n(從 Excel 複製兩欄貼到這裡，兩欄之間必須是定位符 Tab)",
+        placeholderQuestions4Col: "正面(中)\t正面(英)\t背面(中)\t背面(英)\n(從 Excel 複製四欄貼到這裡，各欄之間必須是定位符 Tab)",
+        formatHint2Col: '<strong>Excel 貼入小技巧：</strong> 在 Excel 中準備兩欄：<code>A 欄：卡牌正面內容（如 Opportunity Cost）</code>，<code>B 欄：卡牌背面內容（如解釋「機會成本」）</code>。直接選取資料貼上。',
+        formatHint4Col: '<strong>Excel 雙語貼入小技巧：</strong> 在 Excel 中準備四欄：<code>A 欄：正面中文</code>, <code>B 欄：正面英文</code>, <code>C 欄：背面中文</code>, <code>D 欄：背面英文</code>。選取這四欄並貼上。',
+        step3Title: '打包建置與匯出',
+        step3Desc: '點擊下方按鈕，系統將自動合成字卡題庫、主題配色、發音設定及 A4 證書列印模組，匯出為一個獨立的 HTML 網頁。',
+        btnDownloadText: '下載單一獨立 HTML 檔案',
+        guideTitle: 'Google Sites 嵌入操作指南',
+        gStep1H: '設定並下載',
+        gStep1P: '設定科目名稱、練習標題與讀音配色，並貼上 Excel 複製之題庫後，點擊「下載單一獨立 HTML 檔案」。',
+        gStep2H: '複製 HTML 代碼',
+        gStep2P: '用電腦內建的「記事本」(Notepad) 開啟下載的 .html 檔案，按 Ctrl + A 全選，再按 Ctrl + C 複製全部內容。',
+        gStep3H: '在 Google Sites 新增全頁嵌入網頁',
+        gStep3P: '打開您的 Google Sites 協作平台編輯介面。在右側面板切換至「頁面」分頁，將滑鼠懸停在底部的「+」號上，點擊「新增全頁嵌入網頁」 (</> 標籤)。',
+        gStep4H: '貼上 HTML 程式碼',
+        gStep4P: '輸入頁面名稱（如：字卡複習）並點擊「完成」。在頁面中點擊「新增嵌入內容」，切換至「嵌入程式碼」分頁並貼入剛才複製的程式碼，點擊「下一步」並按「插入」。',
+        gStep5H: '發佈並與學生分享',
+        gStep5P: '全頁嵌入會自動 100% 填滿整個瀏覽器畫面，無需手動調整高度。最後點擊右上角的「發佈」按鈕，即可將網頁分享給學生！',
+    footerText: '香港道教聯合會圓玄學院第三中學 · HKTA The Yuen Yuen Institute No.3 Secondary School · AI in Education',
+        errorEmpty: '請先在步驟二貼入您的題庫資料。'
+      },
+      'en': {
+        pageTitle: 'General Flashcard Generator',
+        headerTitle: '<span>General Flashcard Generator</span>',
+        headerDesc: 'Custom voice pronunciation and theme colors. One-click download of 100% offline-ready HTML, easily embedded in Google Sites.',
+        langBtnText: '繁體中文',
+        step1Title: 'Configuration Settings',
+        lblStudyMode: 'Study Mode',
+        modeZh: 'Chinese Version',
+        modeEn: 'English Version',
+        modeBilingual: 'Bilingual (Chinese/English)',
+        lblSubjectZh: 'Subject / Category (Chinese)',
+        placeholderSubjectZh: 'e.g., 中三級經濟科',
+        lblSubjectEn: 'Subject / Category (English)',
+        placeholderSubjectEn: 'e.g., S3 Economics',
+        lblTitleZh: 'Practice Title (Chinese)',
+        placeholderTitleZh: 'e.g., 經濟學基礎概念溫習',
+        lblTitleEn: 'Practice Title (English)',
+        placeholderTitleEn: 'e.g., Economics Core Concepts Revision',
+        lblFilename: 'Export File Name',
+        placeholderFilename: 'e.g., economics_flashcards_u1',
+        lblTheme: 'Theme Color',
+        themeBlue: 'Sky Blue',
+        themeGreen: 'Emerald Green',
+        themeOrange: 'Vibrant Orange',
+        themePurple: 'Amethyst Purple',
+        lblTts: 'Voice Speech Setting',
+        ttsNone: 'Speech Disabled (None)',
+        ttsEnabled: 'Speech Enabled (Cantonese / English)',
+        lblTtsFace: 'Pronounce Card Side',
+        ttsFaceFront: 'Speak Front Side Only',
+        ttsFaceBack: 'Speak Back Side Only',
+        ttsFaceBoth: 'Speak Both Sides',
+        step2Title: 'Vocab List & Explanations',
+        lblQuestions2Col: 'Paste card front and back content (Excel-copied 2 cols TSV):',
+        lblQuestions4Col: 'Paste bilingual card front and back content (Excel-copied 4 cols TSV):',
+        btnLoadExample: 'Load Economics Example',
+        placeholderQuestions2Col: 'Front content\tBack content\n(Copy two columns directly from Excel and paste here. Columns must be Tab-separated)',
+        placeholderQuestions4Col: "Front(Zh)\tFront(En)\tBack(Zh)\tBack(En)\n(Copy four columns directly from Excel and paste here. Columns must be Tab-separated)",
+        formatHint2Col: '<strong>Excel Paste Tip:</strong> Prepare two columns in Excel: <code>Column A: Front Content (e.g. Opportunity Cost)</code>, <code>Column B: Back Content (e.g. Explanation)</code>. Copy and paste.',
+        formatHint4Col: '<strong>Excel Bilingual Tip:</strong> Prepare four columns in Excel: <code>Col A: Front Zh</code>, <code>Col B: Front En</code>, <code>Col C: Back Zh</code>, <code>Col D: Back En</code>. Copy all 4 columns and paste.',
+        step3Title: 'Generate & Export',
+        step3Desc: 'Click the button below to package your cards, theme, voice setting, and certificate module into a standalone HTML file.',
+        btnDownloadText: 'Download Standalone HTML File',
+        guideTitle: 'Google Sites Embedding Guide',
+        gStep1H: 'Enter Data & Download',
+        gStep1P: 'Configure the subject, title, TTS language, and paste your Excel vocabulary list, then click "Download Standalone HTML File".',
+        gStep2H: 'Copy HTML Code',
+        gStep2P: 'Open the downloaded .html file using Notepad, press Ctrl + A to select all, and copy it with Ctrl + C.',
+        gStep3H: 'Create Embed Page in Google Sites',
+        gStep3P: 'Open your Google Sites editor. Switch to the "Pages" tab on the right panel, hover over the "+" icon at the bottom, and click "New embed page" (</> icon).',
+        gStep4H: 'Paste HTML Code',
+        gStep4P: 'Enter page name (e.g. Flashcards) and click "Done". Click "Add embed" in the page area, switch to the "Embed code" tab, paste your code, click "Next", and click "Insert".',
+        gStep5H: 'Publish & Share',
+        gStep5P: 'The embedded page automatically occupies 100% of the screen. Click "Publish" in the top-right corner to share with your students.',
+    footerText: 'HKTA The Yuen Yuen Institute No.3 Secondary School · AI in Education',
+        errorEmpty: 'Please paste your card data in step 2 first.'
+      }
+    };
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      applyLanguage();
+    }
+
+    function applyLanguage() {
+      const trans = translations[currentLang];
+      
+      // Page title
+      document.getElementById('page-title').innerText = trans.pageTitle;
+      
+      // Header
+      document.getElementById('header-title-container').innerHTML = trans.headerTitle;
+      document.getElementById('header-desc-container').innerText = trans.headerDesc;
+      document.getElementById('lang-btn-text').innerText = trans.langBtnText;
+      
+      // Selectors translations
+      const i18nElements = document.querySelectorAll('[data-i18n]');
+      i18nElements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (trans[key]) {
+          el.innerText = trans[key];
+        }
+      });
+      
+      // Placeholders
+      document.getElementById('dict-subject-zh').placeholder = trans.placeholderSubjectZh;
+      document.getElementById('dict-subject-en').placeholder = trans.placeholderSubjectEn;
+      document.getElementById('dict-title-zh').placeholder = trans.placeholderTitleZh;
+      document.getElementById('dict-title-en').placeholder = trans.placeholderTitleEn;
+      document.getElementById('export-filename').placeholder = trans.placeholderFilename;
+      
+      // TSV Text area labels and Placeholders dynamically based on studyMode & currentLang
+      updateTsvTips();
+      
+      document.getElementById('step3-desc').innerText = trans.step3Desc;
+      document.getElementById('btn-download-text').innerText = trans.btnDownloadText;
+      
+      document.getElementById('g-step1-h').innerText = trans.gStep1H;
+      document.getElementById('g-step1-p').innerText = trans.gStep1P;
+      document.getElementById('g-step2-h').innerText = trans.gStep2H;
+      document.getElementById('g-step2-p').innerText = trans.gStep2P;
+      document.getElementById('g-step3-h').innerText = trans.gStep3H;
+      document.getElementById('g-step3-p').innerText = trans.gStep3P;
+      document.getElementById('g-step4-h').innerText = trans.gStep4H;
+      document.getElementById('g-step4-p').innerText = trans.gStep4P;
+      document.getElementById('g-step5-h').innerText = trans.gStep5H;
+      document.getElementById('g-step5-p').innerText = trans.gStep5P;
+      
+      document.getElementById('footer-text').innerText = trans.footerText;
+    }
+
+    // 當溫習模式改變時切換輸入框與題庫提示
+    function toggleStudyMode() {
+      const mode = document.getElementById('study-mode').value;
+      const rowZh = document.getElementById('row-zh-fields');
+      const rowEn = document.getElementById('row-en-fields');
+      
+      if (mode === 'chinese') {
+        rowZh.style.display = 'grid';
+        rowEn.style.display = 'none';
+      } else if (mode === 'english') {
+        rowZh.style.display = 'none';
+        rowEn.style.display = 'grid';
+      } else if (mode === 'bilingual') {
+        rowZh.style.display = 'grid';
+        rowEn.style.display = 'grid';
+      }
+      
+      updateTsvTips();
+      clearError();
+    }
+
+    // 根據目前的「溫習模式」與「設定介面語言」動態變更 TSV 題庫輸入提示
+    function updateTsvTips() {
+      const mode = document.getElementById('study-mode').value;
+      const trans = translations[currentLang];
+      const ta = document.getElementById('dict-questions');
+      const lbl = document.getElementById('lbl-questions-prompt');
+      const hint = document.getElementById('format-hint-box');
+      
+      if (mode === 'bilingual') {
+        lbl.innerText = trans.lblQuestions4Col;
+        ta.placeholder = trans.placeholderQuestions4Col;
+        hint.innerHTML = trans.formatHint4Col;
+      } else {
+        lbl.innerText = trans.lblQuestions2Col;
+        ta.placeholder = trans.placeholderQuestions2Col;
+        hint.innerHTML = trans.formatHint2Col;
+      }
+    }
+
+    // 主題配色設定集
+    const themeConfigs = {
+      'sky-blue': {
+        primary: '#0284c7',
+        primaryHover: '#0369a1',
+        primaryLight: '#e0f2fe',
+        bgGradientStart: '#f0f9ff',
+        bgGradientEnd: '#e0f2fe',
+        accentBg: '#bae6fd',
+        shadowColor: 'rgba(2, 132, 199, 0.15)'
+      },
+      'classic-green': {
+        primary: '#10b981',
+        primaryHover: '#059669',
+        primaryLight: '#ecfdf5',
+        bgGradientStart: '#ecfdf5',
+        bgGradientEnd: '#d1fae5',
+        accentBg: '#a7f3d0',
+        shadowColor: 'rgba(16, 185, 129, 0.15)'
+      },
+      'vibrant-orange': {
+        primary: '#f97316',
+        primaryHover: '#ea580c',
+        primaryLight: '#fff7ed',
+        bgGradientStart: '#fff7ed',
+        bgGradientEnd: '#ffedd5',
+        accentBg: '#fed7aa',
+        shadowColor: 'rgba(249, 115, 22, 0.15)'
+      },
+      'elegant-purple': {
+        primary: '#8b5cf6',
+        primaryHover: '#7c3aed',
+        primaryLight: '#f5f3ff',
+        bgGradientStart: '#f5f3ff',
+        bgGradientEnd: '#ede9fe',
+        accentBg: '#ddd6fe',
+        shadowColor: 'rgba(139, 92, 246, 0.15)'
+      }
+    };
+
+    // 發音下拉選單連動
+    function toggleTtsFace() {
+      const tts = document.getElementById('tts-setting').value;
+      const faceSelect = document.getElementById('tts-face');
+      if (tts === 'none') {
+        faceSelect.disabled = true;
+      } else {
+        faceSelect.disabled = false;
+      }
+    }
+
+    // 主題配色預覽切換
+    const themeSelect = document.getElementById('theme-color');
+    themeSelect.addEventListener('change', function() {
+      const selectedTheme = themeConfigs[this.value];
+      document.documentElement.style.setProperty('--primary-color', selectedTheme.primary);
+      document.documentElement.style.setProperty('--primary-hover', selectedTheme.primaryHover);
+      document.documentElement.style.setProperty('--primary-light', selectedTheme.primaryLight);
+    });
+
+    // 範例資料集：經濟科
+    // 2 欄版：正面 \t 背面
+    const example2ColTSV = `機會成本	放棄的最高價值選擇 (The highest-valued option forgone)
+稀缺性	慾望超過可用資源 (Wants exceed available resources)
+需求定律	價格上升，需求量減少 (Price increases, quantity demanded decreases)
+本地生產總值	在特定時期內在一個國家境內生產的所有最終商品與服務的市場價值`;
+
+    // 4 欄版：正面中 \t 正面英 \t 背面中 \t 背面英
+    const example4ColTSV = `機會成本	Opportunity Cost	放棄的最高價值選擇	The highest-valued option forgone
+稀缺性	Scarcity	慾望超過可用資源	Wants exceed available resources
+需求定律	Law of Demand	價格上升，需求量減少	Price increases, quantity demanded decreases
+本地生產總值	Gross Domestic Product (GDP)	特定時期內在境內生產所有最終商品的市場價值	Market value of all final goods and services produced
+通貨膨脹	Inflation	物價水平持續且顯著的上漲	Sustained rise in the general price level
+壟斷	Monopoly	單一賣家主導整個市場	Single seller dominating the market
+均衡價格	Equilibrium Price	需求量等於供應量時的市場價格	Price where quantity demanded equals quantity supplied
+財政政策	Fiscal Policy	政府改變稅收與支出影響宏觀經濟的手段	Government adjusts taxing and spending levels`;
+
+    function loadExample() {
+      const mode = document.getElementById('study-mode').value;
+      
+      if (mode === 'bilingual') {
+        document.getElementById('dict-questions').value = example4ColTSV;
+        document.getElementById('dict-subject-zh').value = '經濟科';
+        document.getElementById('dict-subject-en').value = 'Economics';
+        document.getElementById('dict-title-zh').value = '經濟學基礎概念溫習';
+        document.getElementById('dict-title-en').value = 'Economics Core Concepts Revision';
+      } else if (mode === 'english') {
+        document.getElementById('dict-questions').value = `Opportunity Cost	The highest-valued option forgone
+Scarcity	Wants exceed available resources
+Law of Demand	Price increases, quantity demanded decreases
+Gross Domestic Product (GDP)	Market value of all final goods and services produced in a country`;
+        document.getElementById('dict-subject-en').value = 'Economics';
+        document.getElementById('dict-title-en').value = 'Econ Basic Concepts';
+      } else {
+        // chinese
+        document.getElementById('dict-questions').value = example2ColTSV;
+        document.getElementById('dict-subject-zh').value = '經濟科';
+        document.getElementById('dict-title-zh').value = '經濟學基礎概念';
+      }
+      
+      document.getElementById('export-filename').value = 'economics_concepts_rev';
+      document.getElementById('tts-setting').value = 'enabled';
+      document.getElementById('tts-face').value = 'front';
+      toggleTtsFace();
+      clearError();
+    }
+
+    function clearError() {
+      const errBox = document.getElementById('error-message');
+      errBox.style.display = 'none';
+      errBox.innerText = '';
+    }
+
+    function showError(msg) {
+      const errBox = document.getElementById('error-message');
+      errBox.style.display = 'block';
+      errBox.innerText = msg;
+    }
+
+    // 解析 TSV 資料 (依模式自動驗證 2 欄或 4 欄)
+    function parseTSV(text, mode) {
+      if (!text.trim()) return [];
+      const lines = text.split(/\r?\n/);
+      const list = [];
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        const cols = line.split('\t');
+        
+        if (mode === 'bilingual') {
+          // 4 欄驗證
+          if (cols.length < 4 || !cols[0].trim() || !cols[1].trim() || !cols[2].trim() || !cols[3].trim()) {
+            throw new Error(currentLang === 'zh' 
+              ? `第 ${i + 1} 行格式錯誤：雙語模式下必須貼滿 4 欄且內容不能為空 (正面中、正面英、背面中、背面英)。` 
+              : `Line ${i + 1} format error: Bilingual mode requires all 4 columns (Front Zh, Front En, Back Zh, Back En) to be filled.`);
+          }
+          list.push({
+            frontZh: cols[0].trim(),
+            frontEn: cols[1].trim(),
+            backZh: cols[2].trim(),
+            backEn: cols[3].trim()
+          });
+        } else {
+          // 2 欄驗證
+          if (cols.length < 1 || !cols[0].trim()) {
+            throw new Error(currentLang === 'zh' 
+              ? `第 ${i + 1} 行格式錯誤：字卡正面內容不能為空。` 
+              : `Line ${i + 1} format error: Card front content cannot be empty.`);
+          }
+          list.push({
+            front: cols[0].trim(),
+            back: cols[1] ? cols[1].trim() : ""
+          });
+        }
+      }
+      return list;
+    }
+
+    // 產生與下載
+    function generateAndDownload() {
+      clearError();
+      const studyMode = document.getElementById('study-mode').value;
+      const theme = document.getElementById('theme-color').value;
+      const ttsSetting = document.getElementById('tts-setting').value;
+      const ttsFace = document.getElementById('tts-face').value;
+      const filename = document.getElementById('export-filename').value.trim() || 'flashcard_practice';
+      
+      // 依模式取得對應欄位值
+      let subjectZh = '';
+      let subjectEn = '';
+      let titleZh = '';
+      let titleEn = '';
+      
+      if (studyMode === 'chinese') {
+        subjectZh = document.getElementById('dict-subject-zh').value.trim() || '自主溫習';
+        titleZh = document.getElementById('dict-title-zh').value.trim() || '通用翻卡練習';
+      } else if (studyMode === 'english') {
+        subjectEn = document.getElementById('dict-subject-en').value.trim() || 'Self Revision';
+        titleEn = document.getElementById('dict-title-en').value.trim() || 'General Flashcard Revision';
+      } else if (studyMode === 'bilingual') {
+        subjectZh = document.getElementById('dict-subject-zh').value.trim() || '自主溫習';
+        subjectEn = document.getElementById('dict-subject-en').value.trim() || 'Self Revision';
+        titleZh = document.getElementById('dict-title-zh').value.trim() || '通用翻卡練習';
+        titleEn = document.getElementById('dict-title-en').value.trim() || 'General Flashcard Revision';
+      }
+      
+      const qText = document.getElementById('dict-questions').value;
+      let parsedQuestions = [];
+      
+      try {
+        if (!qText.trim()) {
+          const trans = translations[currentLang];
+          throw new Error(trans.errorEmpty);
+        }
+        parsedQuestions = parseTSV(qText, studyMode);
+      } catch (err) {
+        showError(err.message);
+        return;
+      }
+
+      // 建立 HTML
+      const finalHTML = buildCardHTML(
+        studyMode, subjectZh, subjectEn, titleZh, titleEn,
+        theme, ttsSetting, ttsFace,
+        parsedQuestions
+      );
+      
+      const blob = new Blob([finalHTML], { type: 'text/html;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', `${filename}.html`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // build.js 在編譯時將會覆寫此函數的內容
+    function buildCardHTML(
+      studyMode, subjectZh, subjectEn, titleZh, titleEn,
+      themeKey, ttsSetting, ttsFace,
+      questionsData
+    ) {
+      const theme = themeConfigs[themeKey];
+      const stringifiedData = JSON.stringify(questionsData);
+      
+      return `<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${titleZh || titleEn} - ${subjectZh || subjectEn}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* -------------------------------------------------------------
+ * flashcard.css - 通用字卡溫習界面樣式
+ * Designed for General-purpose Cross-disciplinary Flashcards.
+ * ------------------------------------------------------------- */
+
+:root {
+  --primary-color: #0284c7;
+  --primary-hover: #0369a1;
+  --primary-light: #e0f2fe;
+  --bg-gradient-start: #f8fafc;
+  --bg-gradient-end: #f1f5f9;
+  --accent-bg: #bae6fd;
+  --shadow-color: rgba(2, 132, 199, 0.15);
+  
+  --card-bg: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  
+  --font-outfit: 'Outfit', 'Noto Sans TC', sans-serif;
+  
+  --success-color: #10b981;
+  --success-hover: #059669;
+  --success-light: #ecfdf5;
+  
+  --warn-color: #f97316;
+  --warn-hover: #ea580c;
+  --warn-light: #fff7ed;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-outfit);
+  background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+  color: var(--text-main);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.6;
+  padding: 2rem 1.5rem;
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* 遊戲大卡片基礎樣式 */
+.flash-card {
+  background: var(--card-bg);
+  border-radius: 1.25rem;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  padding: 2rem;
+  width: 100%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* 大廳介面 layout */
+.lobby-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 3rem 2rem;
+}
+
+.lobby-badge {
+  align-self: center;
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+  padding: 0.35rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.lobby-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.2;
+}
+
+.lobby-subject {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  margin-top: -0.5rem;
+}
+
+.lobby-input-group {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.lobby-input-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.lobby-input-group input {
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1.5px solid var(--border-color);
+  font-family: var(--font-outfit);
+  font-size: 1rem;
+  color: var(--text-main);
+  background-color: #f8fafc;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.lobby-input-group input:focus {
+  border-color: var(--primary-color);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* 3D 翻轉卡片容器 */
+.deck-container {
+  width: 100%;
+  perspective: 1200px;
+  margin: 1rem 0;
+  height: 360px;
+}
+
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.card-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 1.25rem;
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 10px 25px -5px var(--shadow-color), 0 8px 16px -6px var(--shadow-color);
+  overflow: hidden;
+}
+
+.card-front {
+  background-color: #ffffff;
+  z-index: 2;
+  transform: rotateY(0deg);
+}
+
+.card-back {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  transform: rotateY(180deg);
+}
+
+.card-side-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #f1f5f9;
+  padding: 0.2rem 0.6rem;
+  border-radius: 0.25rem;
+  z-index: 5;
+}
+
+/* 卡片文字內容 */
+.char-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 210px;
+  width: 100%;
+  z-index: 2;
+  text-align: center;
+}
+
+.card-text {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-main);
+  word-break: break-word;
+  max-width: 100%;
+  line-height: 1.3;
+}
+
+.click-hint {
+  position: absolute;
+  bottom: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  z-index: 5;
+}
+
+/* 浮動發音按鈕 */
+.action-buttons-overlay {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 10;
+}
+
+.btn-overlay-action {
+  background-color: var(--primary-light);
+  border: none;
+  color: var(--primary-color);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.1);
+}
+
+.btn-overlay-action svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+@media (hover: hover) {
+  .btn-overlay-action:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: scale(1.08);
+  }
+}
+
+.btn-overlay-action:active {
+  transform: scale(0.95);
+}
+
+.btn-overlay-action.playing {
+  animation: pulse-ring 1.2s infinite;
+  background-color: var(--primary-color);
+  color: white;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(2, 132, 199, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(2, 132, 199, 0);
+  }
+}
+
+/* 熟練度按鈕樣式 */
+.mastery-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.btn-mastery {
+  border: none;
+  border-radius: 0.75rem;
+  padding: 0.9rem 1.5rem;
+  font-family: var(--font-outfit);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.btn-mastered {
+  background-color: var(--success-color);
+}
+
+.btn-need-review {
+  background-color: var(--warn-color);
+}
+
+@media (hover: hover) {
+  .btn-mastered:hover {
+    background-color: var(--success-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px -2px rgba(16, 185, 129, 0.2);
+  }
+  
+  .btn-need-review:hover {
+    background-color: var(--warn-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px -2px rgba(249, 115, 22, 0.2);
+  }
+}
+
+.btn-mastery:active {
+  transform: translateY(0);
+}
+
+.navigation-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.btn-nav {
+  background-color: #ffffff;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.5rem;
+  font-family: var(--font-outfit);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+@media (hover: hover) {
+  .btn-nav:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+}
+
+.btn-nav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.card-index-indicator {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* 下方進度導航網格 */
+.nav-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.nav-item {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.375rem;
+  border: 1.5px solid var(--border-color);
+  background-color: #ffffff;
+  color: var(--text-main);
+  font-family: var(--font-outfit);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.nav-item.active {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.nav-item.mastered {
+  border-color: var(--success-color);
+  background-color: var(--success-light);
+  color: var(--success-hover);
+}
+
+.nav-item.need-review {
+  border-color: var(--warn-color);
+  background-color: var(--warn-light);
+  color: var(--warn-hover);
+}
+
+@media (hover: hover) {
+  .nav-item:hover {
+    border-color: var(--primary-color);
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+  }
+  .nav-item.active:hover {
+    background-color: var(--primary-hover);
+    color: white;
+  }
+}
+
+/* 頂部或底部的懸浮狀態欄 */
+.stats-progress-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+
+.stats-progress-container span {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.stat-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.stat-dot.mastered {
+  background-color: var(--success-color);
+}
+
+.stat-dot.need-review {
+  background-color: var(--warn-color);
+}
+
+/* 結算報告卡片 */
+.summary-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.summary-circle-container {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.summary-circle {
+  width: 7.5rem;
+  height: 7.5rem;
+  border-radius: 50%;
+  border: 5px solid var(--primary-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.summary-circle.perfect {
+  border-color: var(--success-color);
+}
+
+.summary-percentage {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.1;
+}
+
+.summary-circle-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.summary-student-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.summary-stat-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-color: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.summary-stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.summary-stat-item:first-child {
+  border-right: 1px solid var(--border-color);
+}
+
+.summary-stat-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.summary-stat-num.mastered {
+  color: var(--success-color);
+}
+
+.summary-stat-num.need-review {
+  color: var(--warn-color);
+}
+
+.summary-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.action-btn-row {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn-action-primary, .btn-action-secondary {
+  border: none;
+  padding: 0.85rem 1.5rem;
+  border-radius: 0.5rem;
+  font-family: var(--font-outfit);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.btn-action-primary {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.2);
+}
+
+.btn-action-secondary {
+  background-color: #f1f5f9;
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+
+@media (hover: hover) {
+  .btn-action-primary:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px -2px rgba(2, 132, 199, 0.3);
+  }
+  .btn-action-secondary:hover {
+    background-color: #e2e8f0;
+    transform: translateY(-1px);
+  }
+}
+
+/* 結算詳情清單 */
+.review-title-text {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-main);
+  align-self: flex-start;
+  margin-top: 1rem;
+}
+
+.review-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.review-item {
+  background-color: #ffffff;
+  border: 1.5px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+}
+
+.review-item.mastered {
+  border-left: 5px solid var(--success-color);
+}
+
+.review-item.need-review {
+  border-left: 5px solid var(--warn-color);
+}
+
+.review-icon-status {
+  display: flex;
+  align-items: center;
+}
+
+.review-icon-status.mastered {
+  color: var(--success-color);
+}
+
+.review-icon-status.need-review {
+  color: var(--warn-color);
+}
+
+.review-vocab-details {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.review-word-title {
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.review-word-desc {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-top: 0.1rem;
+}
+
+.review-play-btn {
+  background-color: #f1f5f9;
+  border: none;
+  color: var(--text-muted);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+@media (hover: hover) {
+  .review-play-btn:hover {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+  }
+}
+
+.btn-start {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.85rem 1.5rem;
+  border-radius: 0.5rem;
+  font-family: var(--font-outfit);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.2);
+}
+
+@media (hover: hover) {
+  .btn-start:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px -2px rgba(2, 132, 199, 0.3);
+  }
+}
+
+footer {
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: auto;
+}
+
+/* 📱 手機端與嵌入窄螢幕 RWD 響應式優化 */
+@media (max-width: 640px) {
+  body {
+    padding: 1rem 0.75rem;
+  }
+  .flash-card {
+    padding: 1.5rem 1rem;
+  }
+  .lobby-card {
+    padding: 2rem 1.25rem;
+    gap: 1rem;
+  }
+  .lobby-title {
+    font-size: 1.5rem;
+  }
+  .deck-container {
+    height: 300px; /* 降低卡片高度防溢出 */
+  }
+  .card-face {
+    padding: 1.5rem 1rem;
+  }
+  .char-container {
+    height: 180px;
+  }
+  .card-text {
+    font-size: 2rem !important; /* 降低字型大小，避免長單字爆開 */
+  }
+  .btn-overlay-action {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+  .action-buttons-overlay {
+    top: 0.5rem;
+    right: 0.75rem;
+  }
+  .click-hint {
+    bottom: 0.75rem;
+    font-size: 0.75rem;
+  }
+  /* summary-card inside summary view */
+  .summary-card {
+    padding: 1.5rem 1rem;
+  }
+  .summary-circle {
+    width: 7rem;
+    height: 7rem;
+  }
+  .summary-percentage {
+    font-size: 2rem;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .btn-group {
+    grid-template-columns: 1fr; /* 按鈕在小螢幕改為垂直堆疊 */
+    gap: 0.75rem;
+  }
+  .nav-grid {
+    gap: 0.35rem;
+  }
+  .nav-item {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .deck-container {
+    height: 260px;
+  }
+  .char-container {
+    height: 150px;
+  }
+  .card-text {
+    font-size: 1.6rem !important;
+  }
+  .chinese-char {
+    font-size: 3.5rem !important;
+  }
+  .english-meaning {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* -------------------------------------------------------------
+ * 🎓 證書 A4 高保真列印樣式
+ * ------------------------------------------------------------- */
+#print-certificate-container {
+  display: none;
+  background: white;
+  color: #0f172a;
+}
+
+@media print {
+  body {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* 隱藏其他網頁元素 */
+  main, footer, .stats-progress-container, .nav-grid, #lobby-section, #arena-section, #summary-section {
+    display: none !important;
+  }
+  
+  /* 顯示證書 */
+  #print-certificate-container {
+    display: block !important;
+    width: 297mm !important;
+    height: 210mm !important;
+    padding: 15mm !important;
+    box-sizing: border-box !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin: 0 !important;
+    border: 10px double #0284c7 !important;
+    border-radius: 0 !important;
+    box-shadow: inset 0 0 0 2000px #ffffff !important; /* Inset 陰影底色 Fallback */
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+  
+  @page {
+    size: landscape;
+    margin: 0;
+  }
+  
+  html {
+    font-size: 21px !important; /* Rem 比例縮放 */
+  }
+}
+
+/* 證書內容排版 */
+.cert-header {
+  margin-top: 1rem;
+}
+
+.cert-badge {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.cert-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  font-family: serif;
+}
+
+.cert-body {
+  margin: 2rem 0;
+  font-size: 1.25rem;
+  color: #334155;
+  max-width: 80%;
+  line-height: 1.6;
+}
+
+.cert-name {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  border-bottom: 2px solid #cbd5e1;
+  padding-bottom: 0.25rem;
+  margin: 1rem 0;
+  display: inline-block;
+  min-width: 300px;
+}
+
+.cert-meta {
+  font-size: 1rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+}
+
+.cert-footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.cert-sign {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cert-sign-line {
+  width: 200px;
+  border-bottom: 1px solid #94a3b8;
+  margin-bottom: 0.5rem;
+}
+
+.cert-sign-title {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* -------------------------------------------------------------
+ * 📱 證書 Modal 彈窗樣式 (手機長按儲存用)
+ * ------------------------------------------------------------- */
+#cert-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(4px);
+  padding: 1rem;
+}
+
+.cert-modal-content {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 700px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem 1.5rem 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  animation: modalScaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalScaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.cert-modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.cert-modal-close:hover {
+  color: var(--text-main);
+}
+
+.cert-modal-hint {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  text-align: center;
+  background-color: var(--primary-light);
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  width: 100%;
+}
+
+.cert-modal-img-wrapper {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.cert-modal-img-wrapper img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+  <\/style>
+  <style>
+    :root {
+      --primary-color: ${theme.primary};
+      --primary-hover: ${theme.primaryHover};
+      --primary-light: ${theme.primaryLight};
+      --bg-gradient-start: ${theme.bgGradientStart};
+      --bg-gradient-end: ${theme.bgGradientEnd};
+      --accent-bg: ${theme.accentBg};
+      --shadow-color: ${theme.shadowColor};
+    }
+  <\/style>
+  <style>
+    /* 頂部工具列 (雙語與靜音) */
+    .bilingual-header-bar {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    
+    .btn-lang-toggle {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border: 1.5px solid var(--primary-color);
+      padding: 0.4rem 0.85rem;
+      border-radius: 0.5rem;
+      font-family: var(--font-outfit);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s;
+    }
+    
+    .btn-lang-toggle:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+  <\/style>
+</head>
+<body>
+
+  <main>
+    <!-- Welcome Lobby Card -->
+    <div class="flash-card lobby-card" id="lobby-section">
+      <div class="lobby-badge" id="lobby-badge-el">自主學習字卡</div>
+      <h2 class="lobby-title" id="lobby-title-el">${titleZh || titleEn}</h2>
+      <p class="lobby-subject" id="lobby-subject-el">${subjectZh || subjectEn}</p>
+      
+      <div class="lobby-input-group">
+        <label for="student-name" id="student-name-label">學生姓名</label>
+        <input type="text" id="student-name" placeholder="請輸入姓名" oninput="toggleStartButton()">
+      </div>
+      
+      <button class="btn-start" id="btn-start-revision" onclick="startRevision()" disabled>開始溫習</button>
+    </div>
+
+    <!-- Active Arena section -->
+    <div id="arena-section" style="display: none; width: 100%;">
+      <!-- Top Control Toolbar -->
+      <div class="bilingual-header-bar">
+        <button class="btn-lang-toggle" id="btn-student-lang-toggle" onclick="toggleStudentLanguage()" style="display: none; margin-right: 0.5rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span id="student-lang-btn-text">English</span>
+        </button>
+        <button class="btn-lang-toggle" id="btn-mute-toggle" onclick="toggleMute()">
+          <!-- Icon and Text injected by JS -->
+        </button>
+      </div>
+
+      <!-- Card deck will be inserted here -->
+      <div id="deck-wrapper"></div>
+      
+      <!-- Card navigation (Prev, Indicator, Next) -->
+      <div id="nav-controls-wrapper"></div>
+      
+      <!-- Mastery Buttons -->
+      <div id="mastery-buttons-wrapper"></div>
+    </div>
+
+    <!-- Summary Score/Review card -->
+    <div class="flash-card summary-card" id="summary-section" style="display: none;">
+      <h2 id="summary-header-el">溫習挑戰完成！</h2>
+      <div class="summary-student-name" id="summary-student-display">學生姓名</div>
+      
+      <div class="summary-circle-container">
+        <div class="summary-circle" id="summary-circle-el">
+          <span class="summary-percentage" id="summary-score-value">0%</span>
+          <span class="summary-circle-label" id="summary-circle-label-el">掌握度</span>
+        </div>
+      </div>
+      
+      <p class="summary-comment" id="summary-comment-text">做得好！繼續加油！</p>
+      
+      <div class="summary-stat-box">
+        <div class="summary-stat-item">
+          <span class="summary-stat-num mastered" id="summary-mastered-val">0</span>
+          <span class="summary-stat-label" id="summary-mastered-label-el">已學會</span>
+        </div>
+        <div class="summary-stat-item">
+          <span class="summary-stat-num need-review" id="summary-review-val">0</span>
+          <span class="summary-stat-label" id="summary-review-label-el">需溫習</span>
+        </div>
+      </div>
+      
+      <div class="action-btn-row">
+        <button class="btn-action-secondary" onclick="resetRevision()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          <span id="btn-restart-label-el">重新溫習</span>
+        </button>
+        <button class="btn-action-primary" onclick="downloadCertificateImage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span id="btn-print-label-el">儲存證書圖片</span>
+        </button>
+      </div>
+      
+      <!-- Revision item review list details -->
+      <div id="review-list-container"></div>
+    </div>
+
+    <!-- Navigation item Grid -->
+    <div class="nav-grid" id="nav-grid-container" style="display: none;"></div>
+  </main>
+
+  <!-- Progress bar floating board -->
+  <div class="stats-progress-container" id="stats-bar" style="display: none;">
+    <span id="progress-text">溫習進度: 0 / 0</span>
+    <span style="gap: 1rem;">
+      <span id="mastered-count-badge"><span class="stat-dot mastered"></span>已學會: 0</span>
+      <span id="review-count-badge"><span class="stat-dot need-review"></span>需溫習: 0</span>
+    </span>
+  </div>
+
+  <!-- A4 Print Certificate Container -->
+  <div id="print-certificate-container"></div>
+
+  <!-- Certificate Modal Popup for mobile (Long press to save) -->
+  <div id="cert-modal-overlay" style="display: none;">
+    <div class="cert-modal-content">
+      <button class="cert-modal-close" onclick="closeCertModal()">&times;</button>
+      <p class="cert-modal-hint" id="cert-modal-hint-el">💡 長按上方證書圖片即可儲存至相簿</p>
+      <div class="cert-modal-img-wrapper">
+        <img id="cert-modal-img" src="" alt="Certificate">
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>香港道教聯合會圓玄學院第三中學 · HKTA The Yuen Yuen Institute No.3 Secondary School</p>
+  </footer>
+
+  <script>
+    // Injected variables
+    const studyMode = '${studyMode}';
+    const subjectZh = '${subjectZh}';
+    const subjectEn = '${subjectEn}';
+    const titleZh = '${titleZh}';
+    const titleEn = '${titleEn}';
+    const rawQuestions = ${stringifiedData};
+    const ttsSetting = '${ttsSetting}';
+    const ttsFace = '${ttsFace}';
+
+    // -------------------------------------------------------------
+// flashcard.js - 通用字卡溫習邏輯與語音控制 (中英切換版)
+// 支持單語/雙語模式、第一次加載自動朗讀、靜態靜音按鈕與純前端 Canvas 證書生圖下載
+// -------------------------------------------------------------
+
+let studentName = '';
+let activeQuestions = [];
+let currentCardIndex = 0;
+let masteryStatus = {}; // { shuffledIdx: 'mastered' | 'review' }
+let startTime = null;
+let voices = [];
+let isSpeechInited = false;
+let cardStates = []; // 記錄每張卡片當前朝向：'front' | 'back'
+
+// 語音播放狀態與第一次播放標記
+let isMuted = false;
+let hasAutoSpokenThisCard = false;
+
+// 學生端當前語系 ('zh' 或 'en')
+let currentStudentLang = 'zh';
+
+let touchStartX = 0;
+let touchEndX = 0;
+
+// 學生端多語系字串對照
+const studentTranslations = {
+  'zh': {
+    lobbyBadge: '自主學習字卡',
+    nameLabel: '學生姓名',
+    namePlaceholder: '請輸入姓名',
+    btnStart: '開始溫習',
+    cardFrontBadge: '正面',
+    cardBackBadge: '背面',
+    clickFlipHint: '點擊字卡翻面',
+    btnPrev: '上一張',
+    btnNext: '下一張',
+    cardIndicator: '字卡',
+    btnNeedReview: '仍需溫習',
+    btnMastered: '已學會',
+    progressText: '溫習進度',
+    masteredBadgeText: '已學會',
+    reviewBadgeText: '需溫習',
+    summaryHeader: '溫習挑戰完成！',
+    summaryScoreLabel: '掌握度',
+    summaryMasteredLabel: '已學會',
+    summaryReviewLabel: '需溫習',
+    btnRestart: '重新溫習',
+    btnPrint: '儲存證書圖片',
+    reviewTitleText: '複習卡牌清單詳情',
+    noContent: '(無內容)',
+    studentDisplayLabel: '學生姓名',
+    certBadge: '榮譽學習證書',
+    certBodyText: '茲證明學生 <span class="cert-name">{name}</span> 於本系統完成了以下學科溫習：',
+    certFooterText: '以高達 <strong style="color: #10b981; font-size: 1.6rem;">{pct}%</strong> 的熟練度成功通過溫習挑戰，用時 {time}。特發此證，以資鼓勵！',
+    certMeta: 'This certifies that the student has completed the flashcard revision deck successfully.',
+    certSignDate: '溫習日期 Date',
+    certSignSig: '系統簽署 Signature',
+    comment100: '太棒了！你用 {time} 記住了所有字卡！',
+    comment80: '非常出色！在 {time} 內完成了溫習，只差一點點就完美了！',
+    comment50: '做得好！在 {time} 內掌握了超過一半的字卡，繼續加油！',
+    comment0: '加油！溫習需要時間積累，再次挑戰以加深記憶吧！用時: {time}。',
+    langToggleBtnText: 'English',
+    soundOn: '有聲',
+    soundOff: '已靜音'
+  },
+  'en': {
+    lobbyBadge: 'Self-Study Flashcards',
+    nameLabel: 'Student Name',
+    namePlaceholder: 'Enter your name',
+    btnStart: 'Start Revision',
+    cardFrontBadge: 'Front',
+    cardBackBadge: 'Back',
+    clickFlipHint: 'Click Card to Flip',
+    btnPrev: 'Prev',
+    btnNext: 'Next',
+    cardIndicator: 'Card',
+    btnNeedReview: 'Still Learning',
+    btnMastered: 'Mastered',
+    progressText: 'Progress',
+    masteredBadgeText: 'Mastered',
+    reviewBadgeText: 'Learning',
+    summaryHeader: 'Revision Completed!',
+    summaryScoreLabel: 'Mastery',
+    summaryMasteredLabel: 'Mastered',
+    summaryReviewLabel: 'Learning',
+    btnRestart: 'Restart Revision',
+    btnPrint: 'Save Certificate',
+    reviewTitleText: 'Revision List Details',
+    noContent: '(No content)',
+    studentDisplayLabel: 'Student Name',
+    certBadge: 'Certificate of Achievement',
+    certBodyText: 'This is to certify that the student <span class="cert-name">{name}</span> has completed the revision deck:',
+    certFooterText: 'And has successfully passed with <strong style="color: #10b981; font-size: 1.6rem;">{pct}%</strong> mastery, in a duration of {time}. Keep up the great work!',
+    certMeta: 'This certifies that the student has completed the flashcard revision deck successfully.',
+    certSignDate: 'Date',
+    certSignSig: 'Signature',
+    comment100: 'Brilliant! You mastered all cards in {time}!',
+    comment80: 'Well done! Almost perfect in {time}! Keep up the good work.',
+    comment50: 'Good effort! You\\'ve mastered half the deck in {time}. Keep revising!',
+    comment0: 'Revising takes time. Try again to boost your memory! Time: {time}.',
+    langToggleBtnText: '繁體中文',
+    soundOn: 'Sound On',
+    soundOff: 'Muted'
+  }
+};
+
+function initSwipeEvents() {
+  const deckWrapper = document.getElementById('deck-wrapper');
+  if (!deckWrapper) return;
+  
+  const newWrapper = deckWrapper.cloneNode(true);
+  deckWrapper.parentNode.replaceChild(newWrapper, deckWrapper);
+  
+  newWrapper.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  
+  newWrapper.addEventListener('touchend', e => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleGesture();
+  }, { passive: true });
+}
+
+function handleGesture() {
+  const swipeThreshold = 50;
+  if (touchEndX < touchStartX - swipeThreshold) {
+    nextCard();
+  }
+  if (touchEndX > touchStartX + swipeThreshold) {
+    prevCard();
+  }
+}
+
+// 初始化本地語音引擎
+window.addEventListener('DOMContentLoaded', () => {
+  initSpeechSynthesis();
+  initApp();
+});
+
+function initSpeechSynthesis() {
+  if (typeof speechSynthesis === 'undefined') return;
+  const loadVoices = () => {
+    voices = speechSynthesis.getVoices();
+    isSpeechInited = true;
+  };
+  loadVoices();
+  if (speechSynthesis.onvoiceschanged !== undefined) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+}
+
+// 智慧發音功能
+function speak(text, btnElement, event) {
+  if (event) {
+    event.stopPropagation();
+  }
+  
+  if (isMuted) return;
+  
+  if (typeof speechSynthesis === 'undefined') return;
+  speechSynthesis.cancel();
+  
+  if (!text || ttsSetting === 'none') return;
+  
+  let activeLang = 'en-US';
+  if (studyMode === 'chinese') {
+    activeLang = 'zh-HK';
+  } else if (studyMode === 'english') {
+    activeLang = 'en-US';
+  } else if (studyMode === 'bilingual') {
+    const containsChinese = /[\\u4e00-\\u9fa5]/.test(text);
+    activeLang = containsChinese ? 'zh-HK' : 'en-US';
+  }
+  
+  const utterance = new SpeechSynthesisUtterance(text);
+  
+  let targetVoice = null;
+  if (activeLang === 'zh-HK') {
+    const chineseVoices = voices.filter(v => v.lang.startsWith('zh') || v.lang.startsWith('cs') || v.lang.startsWith('zt'));
+    targetVoice = chineseVoices.find(v => 
+      v.lang.toLowerCase().includes('hk') || 
+      v.name.toLowerCase().includes('cantonese') ||
+      v.name.toLowerCase().includes('hong kong')
+    ) || chineseVoices[0];
+  } else {
+    const englishVoices = voices.filter(v => v.lang.startsWith('en'));
+    targetVoice = englishVoices.find(v => 
+      v.lang.toLowerCase().includes('us') || 
+      v.name.toLowerCase().includes('united states')
+    );
+    if (!targetVoice && englishVoices.length > 0) {
+      targetVoice = englishVoices[0];
+    }
+  }
+  
+  if (targetVoice) {
+    utterance.voice = targetVoice;
+  }
+  utterance.lang = activeLang;
+  utterance.rate = 0.9;
+  
+  if (btnElement) {
+    btnElement.classList.add('playing');
+    utterance.onend = () => btnElement.classList.remove('playing');
+    utterance.onerror = () => btnElement.classList.remove('playing');
+  }
+  
+  speechSynthesis.speak(utterance);
+}
+
+// 監聽 Lobby 姓名輸入
+function toggleStartButton() {
+  const nameInput = document.getElementById('student-name');
+  if (!nameInput) return;
+  const nameVal = nameInput.value.trim();
+  const btn = document.getElementById('btn-start-revision');
+  if (btn) btn.disabled = nameVal.length === 0;
+}
+
+// 切換學生端語言
+function toggleStudentLanguage() {
+  currentStudentLang = currentStudentLang === 'zh' ? 'en' : 'zh';
+  applyStudentLanguage();
+  updateMuteButton();
+  
+  if (document.getElementById('arena-section').style.display === 'block') {
+    renderCard();
+    renderNavGrid();
+    updateStatsBar();
+  } else if (document.getElementById('summary-section').style.display === 'block') {
+    showSummary();
+  }
+}
+
+// 靜音切換
+function toggleMute() {
+  isMuted = !isMuted;
+  if (isMuted && typeof speechSynthesis !== 'undefined') {
+    speechSynthesis.cancel();
+  }
+  updateMuteButton();
+}
+
+function updateMuteButton() {
+  const btn = document.getElementById('btn-mute-toggle');
+  if (!btn) return;
+  
+  const trans = studentTranslations[currentStudentLang];
+  
+  const svgIcon = isMuted 
+    ? \`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+         <line x1="23" y1="9" x2="17" y2="15"></line>
+         <line x1="17" y1="9" x2="23" y2="15"></line>
+       </svg>\`
+    : \`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+         <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+         <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+       </svg>\`;
+       
+  const btnText = isMuted ? trans.soundOff : trans.soundOn;
+  btn.innerHTML = \`\${svgIcon}<span>\${btnText}</span>\`;
+}
+
+// 套用語系文字至 UI
+function applyStudentLanguage() {
+  const trans = studentTranslations[currentStudentLang];
+  
+  const switcher = document.getElementById('btn-student-lang-toggle');
+  if (switcher) {
+    switcher.style.display = studyMode === 'bilingual' ? 'flex' : 'none';
+  }
+  
+  const switcherText = document.getElementById('student-lang-btn-text');
+  if (switcherText) switcherText.innerText = trans.langToggleBtnText;
+  
+  // Lobby
+  document.getElementById('lobby-badge-el').innerText = trans.lobbyBadge;
+  document.getElementById('student-name-label').innerText = trans.nameLabel;
+  document.getElementById('student-name').placeholder = trans.namePlaceholder;
+  document.getElementById('btn-start-revision').innerText = trans.btnStart;
+  
+  if (studyMode === 'bilingual') {
+    document.getElementById('lobby-title-el').innerText = currentStudentLang === 'zh' ? titleZh : titleEn;
+    document.getElementById('lobby-subject-el').innerText = currentStudentLang === 'zh' ? subjectZh : subjectEn;
+    document.title = (currentStudentLang === 'zh' ? titleZh : titleEn) + ' - ' + (currentStudentLang === 'zh' ? subjectZh : subjectEn);
+  } else if (studyMode === 'english') {
+    document.getElementById('lobby-title-el').innerText = titleEn;
+    document.getElementById('lobby-subject-el').innerText = subjectEn;
+  } else {
+    document.getElementById('lobby-title-el').innerText = titleZh;
+    document.getElementById('lobby-subject-el').innerText = subjectZh;
+  }
+  
+  // Summary
+  document.getElementById('summary-header-el').innerText = trans.summaryHeader;
+  document.getElementById('summary-circle-label-el').innerText = trans.summaryScoreLabel;
+  document.getElementById('summary-mastered-label-el').innerText = trans.summaryMasteredLabel;
+  document.getElementById('summary-review-label-el').innerText = trans.summaryReviewLabel;
+  document.getElementById('btn-restart-label-el').innerText = trans.btnRestart;
+  document.getElementById('btn-print-label-el').innerText = trans.btnPrint;
+}
+
+// 初始化應用程式
+function initApp() {
+  if (studyMode === 'english') {
+    currentStudentLang = 'en';
+  } else {
+    currentStudentLang = 'zh'; 
+  }
+  
+  applyStudentLanguage();
+  updateMuteButton();
+  
+  document.getElementById('lobby-section').style.display = 'flex';
+  document.getElementById('arena-section').style.display = 'none';
+  document.getElementById('stats-bar').style.display = 'none';
+  document.getElementById('nav-grid-container').style.display = 'none';
+  document.getElementById('summary-section').style.display = 'none';
+}
+
+// 學生點擊開始
+function startRevision() {
+  const nameInput = document.getElementById('student-name');
+  const nameVal = nameInput ? nameInput.value.trim() : '';
+  if (!nameVal) return;
+  
+  studentName = nameVal;
+  startTime = new Date();
+  prepareDeck();
+  
+  document.getElementById('lobby-section').style.display = 'none';
+  document.getElementById('arena-section').style.display = 'block';
+  document.getElementById('stats-bar').style.display = 'flex';
+  document.getElementById('nav-grid-container').style.display = 'flex';
+  
+  renderCard();
+  renderNavGrid();
+  updateStatsBar();
+  initSwipeEvents();
+}
+
+// 洗牌與準備題目
+function prepareDeck() {
+  activeQuestions = [...rawQuestions]
+    .map((q, idx) => ({ ...q, originalIndex: idx }))
+    .sort(() => 0.5 - Math.random());
+    
+  currentCardIndex = 0;
+  masteryStatus = {};
+  
+  cardStates = activeQuestions.map(() => 'front');
+  hasAutoSpokenThisCard = false;
+}
+
+// 渲染單個字卡與導航
+function renderCard() {
+  const container = document.getElementById('deck-wrapper');
+  container.innerHTML = '';
+  
+  const q = activeQuestions[currentCardIndex];
+  if (!q) return;
+  
+  const deckContainer = document.createElement('div');
+  deckContainer.className = 'deck-container';
+  
+  const currentFace = cardStates[currentCardIndex];
+  const isFlipped = (currentFace === 'back');
+  
+  let frontText = '';
+  let backText = '';
+  
+  if (studyMode === 'bilingual') {
+    frontText = currentStudentLang === 'zh' ? q.frontZh : q.frontEn;
+    backText = currentStudentLang === 'zh' ? q.backZh : q.backEn;
+  } else {
+    frontText = q.front;
+    backText = q.back;
+  }
+  
+  const showFrontAudio = ttsSetting !== 'none' && (ttsFace === 'front' || ttsFace === 'both');
+  const showBackAudio = ttsSetting !== 'none' && (ttsFace === 'back' || ttsFace === 'both');
+  
+  const trans = studentTranslations[currentStudentLang];
+  
+  deckContainer.innerHTML = \`
+    <div class="card-inner \${isFlipped ? 'flipped' : ''}" id="card-inner-element" onclick="flipCard()">
+      <!-- 正面卡牌 -->
+      <div class="card-face card-front">
+        <span class="card-side-badge">\${trans.cardFrontBadge}</span>
+        
+        \${showFrontAudio ? \`
+        <div class="action-buttons-overlay">
+          <button class="btn-overlay-action" id="card-front-audio" title="Speak" onclick="speak('\${frontText.replace(/'/g, "\\\\'")}', this, event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </button>
+        </div>\` : ''}
+
+        <div class="char-container">
+          <div class="card-text">\${frontText}</div>
+        </div>
+
+        <div class="click-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+          \${trans.clickFlipHint}
+        </div>
+      </div>
+      
+      <!-- 背面卡牌 -->
+      <div class="card-face card-back">
+        <span class="card-side-badge">\${trans.cardBackBadge}</span>
+        
+        \${showBackAudio ? \`
+        <div class="action-buttons-overlay">
+          <button class="btn-overlay-action" id="card-back-audio" title="Speak" onclick="speak('\${backText.replace(/'/g, "\\\\'")}', this, event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </button>
+        </div>\` : ''}
+
+        <div class="char-container">
+          <div class="card-text">\${backText || trans.noContent}</div>
+        </div>
+
+        <div class="click-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+          \${trans.clickFlipHint}
+        </div>
+      </div>
+    </div>
+  \`;
+  
+  container.appendChild(deckContainer);
+  
+  const isFirst = (currentCardIndex === 0);
+  const isLast = (currentCardIndex === activeQuestions.length - 1);
+  
+  const navContainer = document.getElementById('nav-controls-wrapper');
+  navContainer.innerHTML = \`
+    <div class="navigation-controls">
+      <button class="btn-nav" onclick="prevCard()" \${isFirst ? 'disabled' : ''}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        \${trans.btnPrev}
+      </button>
+      <span class="card-index-indicator">\${trans.cardIndicator} \${currentCardIndex + 1} / \${activeQuestions.length}</span>
+      <button class="btn-nav" onclick="nextCard()" \${isLast ? 'disabled' : ''}>
+        \${trans.btnNext}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+    </div>
+  \`;
+  
+  const masteryContainer = document.getElementById('mastery-buttons-wrapper');
+  masteryContainer.innerHTML = \`
+    <div class="mastery-row">
+      <button class="btn-mastery btn-need-review" onclick="markStatus('review')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+        \${trans.btnNeedReview}
+      </button>
+      <button class="btn-mastery btn-mastered" onclick="markStatus('mastered')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        \${trans.btnMastered}
+      </button>
+    </div>
+  \`;
+
+  triggerAutoSpeak(q);
+}
+
+// 翻轉卡面 (不重新朗讀)
+function flipCard() {
+  const cardInner = document.getElementById('card-inner-element');
+  if (cardInner) {
+    cardInner.classList.toggle('flipped');
+    const isFlippedNow = cardInner.classList.contains('flipped');
+    cardStates[currentCardIndex] = isFlippedNow ? 'back' : 'front';
+  }
+}
+
+// 自動語音朗讀邏輯 (僅朗讀一次)
+function triggerAutoSpeak(q) {
+  if (hasAutoSpokenThisCard) return;
+  
+  const currentFace = cardStates[currentCardIndex];
+  let text = '';
+  
+  if (studyMode === 'bilingual') {
+    text = currentFace === 'front' 
+      ? (currentStudentLang === 'zh' ? q.frontZh : q.frontEn)
+      : (currentStudentLang === 'zh' ? q.backZh : q.backEn);
+  } else {
+    text = currentFace === 'front' ? q.front : q.back;
+  }
+  
+  setTimeout(() => {
+    if (hasAutoSpokenThisCard) return;
+    
+    if (currentFace === 'front' && ttsSetting !== 'none' && (ttsFace === 'front' || ttsFace === 'both')) {
+      const spk = document.getElementById('card-front-audio');
+      if (spk) {
+        speak(text, spk);
+        hasAutoSpokenThisCard = true;
+      }
+    } else if (currentFace === 'back' && ttsSetting !== 'none' && (ttsFace === 'back' || ttsFace === 'both')) {
+      const spk = document.getElementById('card-back-audio');
+      if (spk) {
+        speak(text, spk);
+        hasAutoSpokenThisCard = true;
+      }
+    }
+  }, 180);
+}
+
+// 導航網格
+function renderNavGrid() {
+  const grid = document.getElementById('nav-grid-container');
+  grid.innerHTML = '';
+  
+  activeQuestions.forEach((_, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'nav-item';
+    btn.innerText = idx + 1;
+    btn.id = \`nav-item-\${idx}\`;
+    
+    if (idx === currentCardIndex) {
+      btn.classList.add('active');
+    }
+    
+    if (masteryStatus[idx] === 'mastered') {
+      btn.classList.add('mastered');
+    } else if (masteryStatus[idx] === 'review') {
+      btn.classList.add('need-review');
+    }
+    
+    btn.onclick = () => {
+      jumpToCard(idx);
+    };
+    
+    grid.appendChild(btn);
+  });
+  
+  const activeItem = document.getElementById(\`nav-item-\${currentCardIndex}\`);
+  if (activeItem) {
+    activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+}
+
+function jumpToCard(idx) {
+  currentCardIndex = idx;
+  hasAutoSpokenThisCard = false;
+  renderCard();
+  renderNavGrid();
+  updateStatsBar();
+}
+
+function prevCard() {
+  if (currentCardIndex > 0) {
+    currentCardIndex--;
+    hasAutoSpokenThisCard = false;
+    renderCard();
+    renderNavGrid();
+    updateStatsBar();
+  }
+}
+
+function nextCard() {
+  if (currentCardIndex < activeQuestions.length - 1) {
+    currentCardIndex++;
+    hasAutoSpokenThisCard = false;
+    renderCard();
+    renderNavGrid();
+    updateStatsBar();
+  }
+}
+
+// 標記狀態並自動前進 (修正結算進入邏輯：不論 index 只要全標記就直接結算)
+function markStatus(status) {
+  masteryStatus[currentCardIndex] = status;
+  renderNavGrid();
+  updateStatsBar();
+  
+  // 不論當前 index 是多少，只要全部標記過就直接進入結果頁面
+  const allAssessed = Object.keys(masteryStatus).length === activeQuestions.length;
+  if (allAssessed) {
+    setTimeout(() => {
+      showSummary();
+    }, 300);
+    return;
+  }
+  
+  // 未全標記完，若後面還有卡片則自動後移一張
+  if (currentCardIndex < activeQuestions.length - 1) {
+    setTimeout(() => {
+      nextCard();
+    }, 250);
+  }
+}
+
+// 更新浮動狀態欄
+function updateStatsBar() {
+  const total = activeQuestions.length;
+  const masteredCount = Object.values(masteryStatus).filter(v => v === 'mastered').length;
+  const reviewCount = Object.values(masteryStatus).filter(v => v === 'review').length;
+  
+  const trans = studentTranslations[currentStudentLang];
+  document.getElementById('progress-text').innerText = \`\${trans.progressText}: \${currentCardIndex + 1} / \${total}\`;
+  document.getElementById('mastered-count-badge').innerHTML = \`<span class="stat-dot mastered"></span>\${trans.masteredBadgeText}: \${masteredCount}\`;
+  document.getElementById('review-count-badge').innerHTML = \`<span class="stat-dot need-review"></span>\${trans.reviewBadgeText}: \${reviewCount}\`;
+}
+
+// 結算畫面展示與證書渲染
+function showSummary() {
+  if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+  
+  const endTime = new Date();
+  const timeDiff = Math.max(1, Math.round((endTime - startTime) / 1000));
+  
+  let formattedTime = '';
+  if (currentStudentLang === 'zh') {
+    if (timeDiff < 60) {
+      formattedTime = \`\${timeDiff} 秒\`;
+    } else {
+      const mins = Math.floor(timeDiff / 60);
+      const secs = timeDiff % 60;
+      formattedTime = \`\${mins} 分 \${secs} 秒\`;
+    }
+  } else {
+    if (timeDiff < 60) {
+      formattedTime = \`\${timeDiff}s\`;
+    } else {
+      const mins = Math.floor(timeDiff / 60);
+      const secs = timeDiff % 60;
+      formattedTime = \`\${mins}m \${secs}s\`;
+    }
+  }
+  
+  const total = activeQuestions.length;
+  const masteredCount = Object.values(masteryStatus).filter(v => v === 'mastered').length;
+  const pct = total > 0 ? Math.round((masteredCount / total) * 100) : 0;
+  
+  document.getElementById('arena-section').style.display = 'none';
+  document.getElementById('stats-bar').style.display = 'none';
+  document.getElementById('nav-grid-container').style.display = 'none';
+  
+  const summarySec = document.getElementById('summary-section');
+  summarySec.style.display = 'block';
+  
+  const trans = studentTranslations[currentStudentLang];
+  document.getElementById('summary-student-display').innerText = \`\${trans.studentDisplayLabel}: \${studentName}\`;
+  document.getElementById('summary-score-value').innerText = \`\${pct}%\`;
+  document.getElementById('summary-comment-text').innerText = getRevisionComment(pct, formattedTime);
+  
+  document.getElementById('summary-mastered-val').innerText = masteredCount;
+  document.getElementById('summary-review-val').innerText = total - masteredCount;
+  
+  const circle = document.getElementById('summary-circle-el');
+  if (pct === 100) {
+    circle.classList.add('perfect');
+  } else {
+    circle.classList.remove('perfect');
+  }
+  
+  setupPrintCertificate(pct, formattedTime);
+  
+  // 渲染結算詳情清單
+  const reviewContainer = document.getElementById('review-list-container');
+  reviewContainer.innerHTML = '';
+  
+  const reviewTitle = document.createElement('h3');
+  reviewTitle.className = 'review-title-text';
+  reviewTitle.innerText = trans.reviewTitleText;
+  reviewContainer.appendChild(reviewTitle);
+  
+  const cardList = document.createElement('div');
+  cardList.className = 'review-card-list';
+  
+  activeQuestions.forEach((q, idx) => {
+    const status = masteryStatus[idx] || 'review';
+    const isMastered = (status === 'mastered');
+    
+    const item = document.createElement('div');
+    item.className = \`review-item \${isMastered ? 'mastered' : 'need-review'}\`;
+    
+    let frontText = '';
+    let backText = '';
+    
+    if (studyMode === 'bilingual') {
+      frontText = currentStudentLang === 'zh' ? q.frontZh : q.frontEn;
+      backText = currentStudentLang === 'zh' ? q.backZh : q.backEn;
+    } else {
+      frontText = q.front;
+      backText = q.back;
+    }
+    
+    const speakButtonHtml = ttsSetting !== 'none' ? \`
+      <button class="review-play-btn" onclick="speak('\${frontText.replace(/'/g, "\\\\'")}', this, event)" title="Speak">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+      </button>
+    \` : '';
+    
+    item.innerHTML = \`
+      <div class="review-icon-status \${isMastered ? 'mastered' : 'need-review'}">
+        \${isMastered 
+          ? \`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>\`
+          : \`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>\`
+        }
+      </div>
+      <div class="review-vocab-details">
+        <span class="review-word-title">\${frontText}</span>
+        <span class="review-word-desc">\${backText || trans.noContent}</span>
+      </div>
+      \${speakButtonHtml}
+    \`;
+    cardList.appendChild(item);
+  });
+  
+  reviewContainer.appendChild(cardList);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function getRevisionComment(pct, timeStr) {
+  const trans = studentTranslations[currentStudentLang];
+  let key = 'comment0';
+  if (pct === 100) key = 'comment100';
+  else if (pct >= 80) key = 'comment80';
+  else if (pct >= 50) key = 'comment50';
+  
+  return trans[key].replace('{time}', timeStr);
+}
+
+// 設定 A4 證書資料 (支持中英文證書切換)
+function setupPrintCertificate(pct, timeStr) {
+  const certContainer = document.getElementById('print-certificate-container');
+  if (!certContainer) return;
+  
+  const trans = studentTranslations[currentStudentLang];
+  let dateStr = '';
+  if (currentStudentLang === 'zh') {
+    dateStr = new Date().toLocaleDateString('zh-HK', { year: 'numeric', month: 'long', day: 'numeric' });
+  } else {
+    dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+  
+  let currentSubject = '';
+  let currentTitle = '';
+  
+  if (studyMode === 'bilingual') {
+    currentSubject = currentStudentLang === 'zh' ? subjectZh : subjectEn;
+    currentTitle = currentStudentLang === 'zh' ? titleZh : titleEn;
+  } else if (studyMode === 'english') {
+    currentSubject = subjectEn;
+    currentTitle = titleEn;
+  } else {
+    currentSubject = subjectZh;
+    currentTitle = titleZh;
+  }
+  
+  const total = activeQuestions.length;
+  const masteredCount = Object.values(masteryStatus).filter(v => v === 'mastered').length;
+  
+  const bodyHtml = currentStudentLang === 'zh' 
+    ? \`茲證明學生 <span class="cert-name">\${studentName}</span> 於本系統完成了以下學科溫習與評估：\`
+    : \`This is to certify that the student <span class="cert-name">\${studentName}</span> has completed the revision and assessment of:\`;
+    
+  const footerHtml = currentStudentLang === 'zh'
+    ? \`熟練度：<strong style="color: var(--primary-color); font-size: 1.5rem;">\${pct}%</strong>（已學會 \${masteredCount} / 總字卡 \${total}）<br>溫習用時：<strong>\${timeStr}</strong>\`
+    : \`Mastery: <strong style="color: var(--primary-color); font-size: 1.5rem;">\${pct}%</strong> (Mastered \${masteredCount} / Total \${total})<br>Time Spent: <strong>\${timeStr}</strong>\`;
+  
+  certContainer.innerHTML = \`
+    <div class="cert-header">
+      <div class="cert-badge">\${currentStudentLang === 'zh' ? '修畢證書' : 'Certificate of Completion'}</div>
+      <div class="cert-title">\${currentStudentLang === 'zh' ? '香港道教聯合會圓玄學院第三中學' : 'HKTA The Yuen Yuen Institute No.3 Secondary School'}</div>
+    </div>
+    
+    <div class="cert-body">
+      \${bodyHtml}
+      <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color); margin: 0.75rem 0;">
+        \${currentSubject} — \${currentTitle}
+      </div>
+      \${footerHtml}
+      <div class="cert-meta">
+        \${currentStudentLang === 'zh' ? '本電子證明由系統自動核實頒發。' : 'This e-certificate is automatically verified and issued by the system.'}
+      </div>
+    </div>
+    
+    <div class="cert-footer">
+      <div class="cert-sign">
+        <div class="cert-sign-line"></div>
+        <div class="cert-sign-title">\${currentStudentLang === 'zh' ? '溫習日期 Date' : 'Date'}: \${dateStr}</div>
+      </div>
+      <div class="cert-sign">
+        <div class="cert-sign-line"></div>
+        <div class="cert-sign-title">\${currentStudentLang === 'zh' ? '系統核實簽署 Verified Signature' : 'Verified Signature'}</div>
+      </div>
+    </div>
+  \`;
+}
+
+// 100% 離線純前端 Canvas 證書生圖與手機下載
+function downloadCertificateImage() {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1200;
+  canvas.height = 840;
+  const ctx = canvas.getContext('2d');
+  
+  // 獲取當前主題色
+  const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary-color').trim() || '#0284c7';
+  
+  // 1. 象牙白優雅背景
+  ctx.fillStyle = '#FCFBF9';
+  ctx.fillRect(0, 0, 1200, 840);
+  
+  // 2. 主題色外邊框
+  ctx.strokeStyle = primaryColor;
+  ctx.lineWidth = 10;
+  ctx.strokeRect(35, 35, 1130, 770);
+  
+  // 金色內細邊框
+  ctx.strokeStyle = '#D4AF37';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(52, 52, 1096, 736);
+  
+  // 3. 繪製角落裝飾花紋
+  drawCorners(ctx);
+  
+  // 4. 頂部校名
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#1E293B';
+  ctx.font = 'bold 28px "Noto Sans TC", "Microsoft JhengHei", sans-serif';
+  ctx.fillText('香港道教聯合會圓玄學院第三中學', 600, 120);
+  
+  ctx.fillStyle = '#64748B';
+  ctx.font = '600 16px "Outfit", "Arial", sans-serif';
+  ctx.fillText('HKTA The Yuen Yuen Institute No.3 Secondary School', 600, 150);
+  
+  // 分割線
+  ctx.strokeStyle = '#E2E8F0';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(350, 175);
+  ctx.lineTo(850, 175);
+  ctx.stroke();
+  
+  // 5. 證書標題
+  const certTitleCN = '修畢證書';
+  const certTitleEN = 'Certificate of Completion';
+  
+  ctx.fillStyle = primaryColor;
+  ctx.font = 'bold 44px "Noto Sans TC", "Microsoft JhengHei", sans-serif';
+  ctx.fillText(certTitleCN, 600, 240);
+  
+  ctx.fillStyle = '#C5A059';
+  ctx.font = 'bold italic 22px "Outfit", "Arial", sans-serif';
+  ctx.fillText(certTitleEN, 600, 280);
+  
+  // 6. 茲證明
+  ctx.fillStyle = '#64748B';
+  ctx.font = 'italic 16px "Outfit", sans-serif';
+  ctx.fillText('This is to certify that', 600, 340);
+  
+  // 學生姓名
+  ctx.fillStyle = '#0F172A';
+  ctx.font = 'bold 36px "Noto Sans TC", "Microsoft JhengHei", sans-serif';
+  ctx.fillText(studentName, 600, 395);
+  
+  // 學生底線
+  ctx.strokeStyle = '#94A3B8';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(350, 410);
+  ctx.lineTo(850, 410);
+  ctx.stroke();
+  
+  // 茲證明完成學習與評估
+  ctx.fillStyle = '#475569';
+  ctx.font = '500 20px "Noto Sans TC", "Microsoft JhengHei", sans-serif';
+  ctx.fillText('已成功完成本校之電子學習溫習與評估任務', 600, 460);
+  
+  ctx.fillStyle = '#64748B';
+  ctx.font = 'italic 14px "Outfit", sans-serif';
+  ctx.fillText('has successfully completed the e-learning revision and assessment task:', 600, 485);
+  
+  // 從變數中取得學科和標題
+  let currentSubject = '';
+  let currentTitle = '';
+  if (studyMode === 'bilingual') {
+    currentSubject = currentStudentLang === 'zh' ? subjectZh : subjectEn;
+    currentTitle = currentStudentLang === 'zh' ? titleZh : titleEn;
+  } else if (studyMode === 'english') {
+    currentSubject = subjectEn;
+    currentTitle = titleEn;
+  } else {
+    currentSubject = subjectZh;
+    currentTitle = titleZh;
+  }
+  
+  // 課卷資訊
+  ctx.fillStyle = '#1E293B';
+  ctx.font = 'bold 24px "Noto Sans TC", "Microsoft JhengHei", sans-serif';
+  ctx.fillText(\`《\${currentSubject} - \${currentTitle}》\`, 600, 535);
+  
+  // 掌握度數據
+  const total = activeQuestions.length;
+  const masteredCount = Object.values(masteryStatus).filter(v => v === 'mastered').length;
+  const scorePercent = total > 0 ? Math.round((masteredCount / total) * 100) : 0;
+  
+  // 計算溫習總時間
+  const endTime = new Date();
+  const timeDiff = Math.max(1, Math.round((endTime - startTime) / 1000));
+  let formattedTime = '';
+  if (currentStudentLang === 'zh') {
+    if (timeDiff < 60) formattedTime = \`\${timeDiff} 秒\`;
+    else formattedTime = \`\${Math.floor(timeDiff / 60)} 分 \${timeDiff % 60} 秒\`;
+  } else {
+    if (timeDiff < 60) formattedTime = \`\${timeDiff}s\`;
+    else formattedTime = \`\${Math.floor(timeDiff / 60)}m \${timeDiff % 60}s\`;
+  }
+  
+  ctx.fillStyle = primaryColor;
+  ctx.font = 'bold 24px "Noto Sans TC", "Microsoft JhengHei", sans-serif';
+  ctx.fillText(\`熟練度 (Mastery)：\${masteredCount} / \${total} (\${scorePercent}%)\`, 600, 580);
+  
+  ctx.fillStyle = '#475569';
+  ctx.font = '600 16px "Noto Sans TC", "Microsoft JhengHei", sans-serif';
+  ctx.fillText(\`溫習用時 (Time Spent)：\${formattedTime}\`, 600, 620);
+  
+  // 頒發日期
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const formattedDate = \`\${year}-\${month}-\${day}\`;
+  
+  ctx.fillStyle = '#64748B';
+  ctx.font = '500 14px "Outfit", sans-serif';
+  ctx.fillText(\`頒發日期 (Date)：\${formattedDate}\`, 600, 665);
+  
+  // 7. 繪製勳章 (Seal)
+  drawSeal(ctx, 220, 690, 55, 30, 55, 45, scorePercent);
+  
+  // 8. 繪製學校印章
+  drawSchoolSeal(ctx, 980, 690);
+  
+  // 9. 轉為圖片並顯示在 Modal 供長按儲存
+  try {
+    const dataURL = canvas.toDataURL('image/png');
+    const modalOverlay = document.getElementById('cert-modal-overlay');
+    const modalImg = document.getElementById('cert-modal-img');
+    const modalHint = document.getElementById('cert-modal-hint-el');
+    
+    if (modalOverlay && modalImg) {
+      modalImg.src = dataURL;
+      if (modalHint) {
+        modalHint.innerText = currentStudentLang === 'zh' 
+          ? '💡 長按上方證書圖片即可儲存至相簿' 
+          : '💡 Long press the certificate image above to save to your photo library.';
+      }
+      modalOverlay.style.display = 'flex';
+    }
+  } catch (e) {
+    console.error('Failed to generate certificate image:', e);
+  }
+}
+
+// 關閉證書彈窗
+function closeCertModal() {
+  const modalOverlay = document.getElementById('cert-modal-overlay');
+  if (modalOverlay) {
+    modalOverlay.style.display = 'none';
+  }
+}
+
+// 繪製角落裝飾
+function drawCorners(ctx) {
+  const size = 30;
+  const offsets = [
+    {x: 52, y: 52, dx: 1, dy: 1}, // 左上
+    {x: 1148, y: 52, dx: -1, dy: 1}, // 右上
+    {x: 52, y: 788, dx: 1, dy: -1}, // 左下
+    {x: 1148, y: 788, dx: -1, dy: -1} // 右下
+  ];
+  
+  ctx.strokeStyle = '#D4AF37';
+  ctx.lineWidth = 3;
+  offsets.forEach(corner => {
+    ctx.beginPath();
+    // 繪製折角
+    ctx.moveTo(corner.x + corner.dx * size, corner.y);
+    ctx.lineTo(corner.x, corner.y);
+    ctx.lineTo(corner.x, corner.y + corner.dy * size);
+    ctx.stroke();
+    
+    // 角落的圓點裝飾
+    ctx.fillStyle = '#D4AF37';
+    ctx.beginPath();
+    ctx.arc(corner.x + corner.dx * 12, corner.y + corner.dy * 12, 4, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// 繪製金色成就印章
+function drawSeal(ctx, cx, cy, r, numPoints, r1, r2, pct) {
+  ctx.beginPath();
+  let angle = Math.PI / 2;
+  const step = Math.PI / numPoints;
+  ctx.moveTo(cx + Math.cos(angle) * r1, cy + Math.sin(angle) * r1);
+  for (let i = 0; i < numPoints * 2; i++) {
+    angle += step;
+    const currR = (i % 2 === 0) ? r2 : r1;
+    ctx.lineTo(cx + Math.cos(angle) * currR, cy + Math.sin(angle) * currR);
+  }
+  ctx.closePath();
+  
+  // 填充金黃色放射性漸層
+  const grad = ctx.createRadialGradient(cx, cy, r2 * 0.2, cx, cy, r1);
+  grad.addColorStop(0, '#FFE066');  // 亮金
+  grad.addColorStop(0.5, '#F5A623'); // 橙金
+  grad.addColorStop(1, '#D4AF37');   // 暗金
+  ctx.fillStyle = grad;
+  ctx.fill();
+  
+  // 描邊
+  ctx.strokeStyle = '#C5A059';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  
+  // 內圈白細線
+  ctx.beginPath();
+  ctx.arc(cx, cy, r2 - 6, 0, Math.PI * 2);
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // 陰影
+  ctx.fillStyle = '#FFFFFF';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+  ctx.shadowBlur = 4;
+  ctx.shadowOffsetX = 1;
+  ctx.shadowOffsetY = 1;
+  
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  
+  // 頂部小字
+  ctx.font = 'bold 11px "Outfit", sans-serif';
+  ctx.fillText('E-LEARNING', cx, cy - 18);
+  
+  // 中間主文字
+  const statusText = 'COMPLETED';
+  
+  ctx.font = 'bold 13px "Outfit", sans-serif';
+  ctx.fillText(statusText, cx, cy + 2);
+  
+  // 底部星星
+  ctx.font = '12px "Outfit", sans-serif';
+  ctx.fillText('★★★', cx, cy + 20);
+  
+  // 清除陰影
+  ctx.shadowColor = 'transparent';
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+}
+
+// 繪製紅色學校印章
+function drawSchoolSeal(ctx, cx, cy) {
+  // 雙框方形紅色印章
+  ctx.strokeStyle = 'rgba(220, 38, 38, 0.8)';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(cx - 48, cy - 48, 96, 96);
+  
+  ctx.lineWidth = 1;
+  ctx.strokeRect(cx - 42, cy - 42, 84, 84);
+  
+  ctx.fillStyle = 'rgba(220, 38, 38, 0.8)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.font = 'bold 16px "Noto Sans TC", "KaiTi", "Microsoft JhengHei", serif';
+  
+  // 印章字樣「圓玄三中學習之印」
+  ctx.fillText('圓玄', cx - 20, cy - 20);
+  ctx.fillText('三中', cx + 20, cy - 20);
+  ctx.fillText('學習', cx - 20, cy + 20);
+  ctx.fillText('之印', cx + 20, cy + 20);
+}
+
+// 畫五角星之輔助算法
+function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
+  let rot = Math.PI / 2 * 3;
+  let x = cx;
+  let y = cy;
+  let step = Math.PI / spikes;
+
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - outerRadius);
+  for (let i = 0; i < spikes; i++) {
+    x = cx + Math.cos(rot) * outerRadius;
+    y = cy + Math.sin(rot) * outerRadius;
+    ctx.lineTo(x, y);
+    rot += step;
+
+    x = cx + Math.cos(rot) * innerRadius;
+    y = cy + Math.sin(rot) * innerRadius;
+    ctx.lineTo(x, y);
+    rot += step;
+  }
+  ctx.lineTo(cx, cy - outerRadius);
+  ctx.closePath();
+  ctx.fill();
+
+// 重新溫習
+function resetRevision() {
+  studentName = '';
+  activeQuestions = [];
+  currentCardIndex = 0;
+  masteryStatus = {};
+  cardStates = [];
+  
+  document.getElementById('summary-section').style.display = 'none';
+  document.getElementById('arena-section').style.display = 'none';
+  document.getElementById('stats-bar').style.display = 'none';
+  document.getElementById('nav-grid-container').style.display = 'none';
+  
+  const nameInput = document.getElementById('student-name');
+  if (nameInput) nameInput.value = '';
+  toggleStartButton();
+  
+  initApp();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+                                                                                                                                                                                                                                                            51.0255476+08:00   k C M OO(:7.2.4+20251128.8f05bb68.9272026-06-13 20:00:29.540282+08:002026-06-12 02:31:34.7728274+08:0ih�	 C M Oo�7.2.2+20250925.3d408807.923
+  <\/script>
+</body>
+</html>
+`;
+    }
+
+    // 初始化語言套用
+    applyLanguage();
+  </script>
+</body>
+</html>

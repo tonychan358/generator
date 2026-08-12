@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>/* {{DICT_TITLE}} */ - /* {{DICT_SUBJECT}} */</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* {{QUIZ_CSS}} */
+  </style>
+  <style>
+    :root {
+      --primary-color: /* {{THEME_PRIMARY}} */;
+      --primary-hover: /* {{THEME_PRIMARY_HOVER}} */;
+      --primary-light: /* {{THEME_PRIMARY_LIGHT}} */;
+      --bg-gradient-start: /* {{THEME_BG_START}} */;
+      --bg-gradient-end: /* {{THEME_BG_END}} */;
+      --accent-bg: /* {{THEME_ACCENT_BG}} */;
+      --shadow-color: /* {{THEME_SHADOW_COLOR}} */;
+    }
+  </style>
+  <style>
+    /* 頂部工具列 (雙語與靜音) */
+    .bilingual-header-bar {
+      width: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+    
+    .btn-lang-toggle {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border: 1.5px solid var(--primary-color);
+      padding: 0.4rem 0.85rem;
+      border-radius: 0.5rem;
+      font-family: var(--font-outfit);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      transition: all 0.2s;
+    }
+    
+    .btn-lang-toggle:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <main>
+    <!-- Welcome Lobby Card -->
+    <div class="flash-card lobby-card" id="lobby-section">
+      <div class="lobby-badge" id="lobby-badge-el">自主學習字卡</div>
+      <h2 class="lobby-title" id="lobby-title-el">/* {{DICT_TITLE}} */</h2>
+      <p class="lobby-subject" id="lobby-subject-el">/* {{DICT_SUBJECT}} */</p>
+      
+      <div class="lobby-input-group">
+        <label for="student-name" id="student-name-label">學生姓名</label>
+        <input type="text" id="student-name" placeholder="請輸入姓名" oninput="toggleStartButton()">
+      </div>
+      
+      <button class="btn-start" id="btn-start-revision" onclick="startRevision()" disabled>開始溫習</button>
+    </div>
+
+    <!-- Active Arena section -->
+    <div id="arena-section" style="display: none; width: 100%;">
+      <!-- Top Control Toolbar -->
+      <div class="bilingual-header-bar">
+        <button class="btn-lang-toggle" id="btn-student-lang-toggle" onclick="toggleStudentLanguage()" style="display: none; margin-right: 0.5rem;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span id="student-lang-btn-text">English</span>
+        </button>
+        <button class="btn-lang-toggle" id="btn-mute-toggle" onclick="toggleMute()">
+          <!-- Icon and Text injected by JS -->
+        </button>
+      </div>
+
+      <!-- Card deck will be inserted here -->
+      <div id="deck-wrapper"></div>
+      
+      <!-- Card navigation (Prev, Indicator, Next) -->
+      <div id="nav-controls-wrapper"></div>
+      
+      <!-- Mastery Buttons -->
+      <div id="mastery-buttons-wrapper"></div>
+    </div>
+
+    <!-- Summary Score/Review card -->
+    <div class="flash-card summary-card" id="summary-section" style="display: none;">
+      <h2 id="summary-header-el">溫習挑戰完成！</h2>
+      <div class="summary-student-name" id="summary-student-display">學生姓名</div>
+      
+      <div class="summary-circle-container">
+        <div class="summary-circle" id="summary-circle-el">
+          <span class="summary-percentage" id="summary-score-value">0%</span>
+          <span class="summary-circle-label" id="summary-circle-label-el">掌握度</span>
+        </div>
+      </div>
+      
+      <p class="summary-comment" id="summary-comment-text">做得好！繼續加油！</p>
+      
+      <div class="summary-stat-box">
+        <div class="summary-stat-item">
+          <span class="summary-stat-num mastered" id="summary-mastered-val">0</span>
+          <span class="summary-stat-label" id="summary-mastered-label-el">已學會</span>
+        </div>
+        <div class="summary-stat-item">
+          <span class="summary-stat-num need-review" id="summary-review-val">0</span>
+          <span class="summary-stat-label" id="summary-review-label-el">需溫習</span>
+        </div>
+      </div>
+      
+      <div class="action-btn-row">
+        <button class="btn-action-secondary" onclick="resetRevision()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+          </svg>
+          <span id="btn-restart-label-el">重新溫習</span>
+        </button>
+        <button class="btn-action-primary" onclick="downloadCertificateImage()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span id="btn-print-label-el">儲存證書圖片</span>
+        </button>
+      </div>
+      
+      <!-- Revision item review list details -->
+      <div id="review-list-container"></div>
+    </div>
+
+    <!-- Navigation item Grid -->
+    <div class="nav-grid" id="nav-grid-container" style="display: none;"></div>
+  </main>
+
+  <!-- Progress bar floating board -->
+  <div class="stats-progress-container" id="stats-bar" style="display: none;">
+    <span id="progress-text">溫習進度: 0 / 0</span>
+    <span style="gap: 1rem;">
+      <span id="mastered-count-badge"><span class="stat-dot mastered"></span>已學會: 0</span>
+      <span id="review-count-badge"><span class="stat-dot need-review"></span>需溫習: 0</span>
+    </span>
+  </div>
+
+  <!-- A4 Print Certificate Container -->
+  <div id="print-certificate-container"></div>
+
+  <!-- Certificate Modal Popup for mobile (Long press to save) -->
+  <div id="cert-modal-overlay" style="display: none;">
+    <div class="cert-modal-content">
+      <button class="cert-modal-close" onclick="closeCertModal()">&times;</button>
+      <p class="cert-modal-hint" id="cert-modal-hint-el">💡 長按上方證書圖片即可儲存至相簿</p>
+      <div class="cert-modal-img-wrapper">
+        <img id="cert-modal-img" src="" alt="Certificate">
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>香港道教聯合會圓玄學院第三中學 · HKTA The Yuen Yuen Institute No.3 Secondary School</p>
+  </footer>
+
+  <script>
+    // Injected variables
+    const studyMode = '${studyMode}';
+    const subjectZh = '${subjectZh}';
+    const subjectEn = '${subjectEn}';
+    const titleZh = '${titleZh}';
+    const titleEn = '${titleEn}';
+    const rawQuestions = ${stringifiedData};
+    const ttsSetting = '${ttsSetting}';
+    const ttsFace = '${ttsFace}';
+
+    // {{QUIZ_JS}}
+  </script>
+</body>
+</html>

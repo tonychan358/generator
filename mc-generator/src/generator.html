@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MC 選擇題練習產生器 / MC Exercise Generator</title>
+  <!-- 載入 Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* 全域設計變數 */
+    :root {
+      --primary-color: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-light: #e0f2fe;
+      --bg-gradient-start: #f8fafc;
+      --bg-gradient-end: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      
+      --font-outfit: 'Outfit', 'Noto Sans TC', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-outfit);
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+    }
+
+    /* 頂部標題 */
+    header {
+      max-width: 1280px;
+      margin: 0 auto 2rem auto;
+      text-align: left;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+
+    .lang-switcher-btn {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.2s;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      flex-shrink: 0;
+      margin-top: 0.5rem;
+    }
+
+    .lang-switcher-btn:hover {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    header h1 span {
+      background: linear-gradient(90deg, var(--primary-color), #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    /* 主版面配置 - 兩欄 */
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* 卡片通用樣式 */
+    .card {
+      background: var(--card-bg);
+      border-radius: 1.25rem;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card:hover {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .card-title .step-badge {
+      background: var(--primary-color);
+      color: white;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    /* 表單元件 */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    input[type="text"], select, textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border-color);
+      font-family: var(--font-outfit);
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background-color: #f8fafc;
+      transition: all 0.2s;
+    }
+
+    input[type="text"]:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    /* 題庫輸入區 */
+    .textarea-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .textarea-container.split {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 768px) {
+      .textarea-container.split {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    textarea {
+      height: 250px;
+      resize: vertical;
+      font-family: monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .textarea-label-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-secondary {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.375rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    /* 輸出與導出按鈕 */
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 0.85rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      margin-top: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.2);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px -1px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* 指引與說明區 */
+    .guide-step {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .guide-step:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .guide-num {
+      background: #f1f5f9;
+      color: var(--text-muted);
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 0.2rem;
+    }
+
+    .guide-text h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .guide-text p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    /* 貼上格式指引說明 */
+    .format-hint {
+      background-color: #f8fafc;
+      border-left: 4px solid var(--primary-color);
+      padding: 0.75rem 1rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+    }
+
+    .format-hint code {
+      background: #e2e8f0;
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.2rem;
+      font-family: monospace;
+      color: #0f172a;
+    }
+
+    /* 錯誤警告彈出 */
+    .toast-error {
+      background-color: #fef2f2;
+      border: 1px solid #fee2e2;
+      color: #b91c1c;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    /* 頁尾 */
+    footer {
+      max-width: 1280px;
+      margin: 3rem auto 0 auto;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1 id="app-title" data-i18n="app-title"><span>MC 選擇題練習產生器</span></h1>
+      <p id="app-subtitle" data-i18n="app-subtitle">MC Exercise Generator for Google Sites - 專為老師設計的一鍵 Excel 轉網頁工具</p>
+    </div>
+    <button class="lang-switcher-btn" id="lang-toggle-btn" onclick="toggleInterfaceLanguage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+      </svg>
+      <span>English</span>
+    </button>
+  </header>
+
+  <main class="container">
+    <!-- 左欄: 設定與題庫 -->
+    <section>
+      <!-- 第一步: 設定參數 -->
+      <div class="card">
+        <h2 class="card-title" data-i18n="step1-title">
+          <span class="step-badge">1</span>
+          設定練習參數 / Configuration
+        </h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="quiz-subject" data-i18n="label-subject">科目名稱 (Subject)</label>
+            <input type="text" id="quiz-subject" data-i18n-placeholder="placeholder-subject" placeholder="例如：中三經濟科, S3 Economics">
+          </div>
+          <div class="form-group">
+            <label for="quiz-title" data-i18n="label-title">練習標題 (Practice Title)</label>
+            <input type="text" id="quiz-title" data-i18n-placeholder="placeholder-title" placeholder="例如：需求與供應練習, Demand & Supply Quiz">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="export-filename" data-i18n="label-filename">匯出檔案名稱 (File Name)</label>
+            <input type="text" id="export-filename" data-i18n-placeholder="placeholder-filename" placeholder="例如：econ_mc_practice">
+          </div>
+          <div class="form-group">
+            <label for="quiz-mode" data-i18n="label-mode">學生作答模式 (Quiz Mode)</label>
+            <select id="quiz-mode">
+              <option value="all" data-i18n="opt-mode-all">一次顯示全部 (Show All Questions)</option>
+              <option value="one" data-i18n="opt-mode-one">一題一頁模式 (One Question per Page)</option>
+              <option value="random10" data-i18n="opt-mode-random10">隨機抽 10 題模式 (Random 10 Questions)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="theme-color" data-i18n="label-theme">主顏色調 (Theme Color)</label>
+            <select id="theme-color">
+              <option value="sky-blue" data-i18n="opt-theme-sky-blue">科技藍 (Sky Blue)</option>
+              <option value="classic-green" data-i18n="opt-theme-classic-green">經典綠 (Classic Green)</option>
+              <option value="vibrant-orange" data-i18n="opt-theme-vibrant-orange">活力橘 (Vibrant Orange)</option>
+              <option value="elegant-purple" data-i18n="opt-theme-elegant-purple">優雅紫 (Elegant Purple)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="language-mode" data-i18n="label-lang">語系模式 (Language Mode)</label>
+            <select id="language-mode">
+              <option value="zh" data-i18n="opt-lang-zh">繁體中文 (Traditional Chinese)</option>
+              <option value="en" data-i18n="opt-lang-en">English (英文)</option>
+              <option value="bilingual" data-i18n="opt-lang-bilingual">中英雙語切換 (Bilingual Switch)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="order-mode" data-i18n="label-order">題目及選項順序 (Question & Option Order)</label>
+            <select id="order-mode">
+              <option value="original" data-i18n="opt-order-original">按題庫固定順序 (Keep original order)</option>
+              <option value="shuffle" data-i18n="opt-order-shuffle">學生每次作答隨機打亂 (Randomize questions & options)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="passing-score" data-i18n="label-passing-score">證書頒發門檻 (Certificate Passing Threshold)</label>
+            <select id="passing-score">
+              <option value="0" data-i18n="opt-passing-0">完成即可頒發 (Generate on completion)</option>
+              <option value="50" data-i18n="opt-passing-50">答對 50% 或以上 (50% or above correct)</option>
+              <option value="60" data-i18n="opt-passing-60" selected>答對 60% 或以上 (60% or above correct)</option>
+              <option value="70" data-i18n="opt-passing-70">答對 70% 或以上 (70% or above correct)</option>
+              <option value="80" data-i18n="opt-passing-80">答對 80% 或以上 (80% or above correct)</option>
+              <option value="90" data-i18n="opt-passing-90">答對 90% 或以上 (90% or above correct)</option>
+              <option value="100" data-i18n="opt-passing-100">必須答對 100% (Perfect score 100%)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第二步: 貼上題庫 -->
+      <div class="card">
+        <h2 class="card-title" data-i18n="step2-title">
+          <span class="step-badge">2</span>
+          貼上題庫文本 / Paste Question Data
+        </h2>
+        
+        <div class="textarea-container" id="textarea-wrapper">
+          <!-- 中文題庫區 -->
+          <div id="cn-input-group">
+            <div class="textarea-label-wrapper">
+              <label for="cn-questions" data-i18n="label-cn-questions">貼上中文題庫 (Excel 複製格式):</label>
+              <button class="btn-secondary" data-i18n="btn-load-cn" onclick="loadExample('cn')">載入中文範本</button>
+            </div>
+            <textarea id="cn-questions" data-i18n-placeholder="placeholder-cn-questions" placeholder="題目	選項A	選項B	選項C	選項D	答案	解析&#10;(直接從 Excel 框選複製，貼到這裡，欄位以 Tab 分隔)"></textarea>
+          </div>
+          
+          <!-- 英文題庫區 -->
+          <div id="en-input-group" style="display: none;">
+            <div class="textarea-label-wrapper">
+              <label for="en-questions" data-i18n="label-en-questions">貼上英文題庫 (Excel 複製格式):</label>
+              <button class="btn-secondary" data-i18n="btn-load-en" onclick="loadExample('en')">載入英文範本</button>
+            </div>
+            <textarea id="en-questions" data-i18n-placeholder="placeholder-en-questions" placeholder="Question	Option A	Option B	Option C	Option D	Ans	Explanation&#10;(Copy from Excel and paste here, separated by Tabs)"></textarea>
+          </div>
+        </div>
+
+        <div class="format-hint" data-i18n="format-hint">
+          <strong>Excel 格式說明：</strong> 請在 Excel 中依序安排欄位：
+          <code>A:題目</code>, <code>B:選項A</code>, <code>C:選項B</code>, <code>D:選項C</code>, <code>E:選項D</code>, <code>F:標準答案(A/B/C/D)</code>, <code>G:解析(選填)</code>。
+          複製所有資料列（請勿包含標題列），直接貼上到上方區塊。
+        </div>
+
+        <div class="toast-error" id="error-message"></div>
+      </div>
+    </section>
+
+    <!-- 右欄: 導出與說明 -->
+    <section>
+      <!-- 第三步: 生成與匯出 -->
+      <div class="card">
+        <h2 class="card-title" data-i18n="step3-title">
+          <span class="step-badge">3</span>
+          生成與匯出 / Export
+        </h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;" data-i18n="step3-desc">
+          產生器會將題庫與選定模式編譯入一個單一且離線可用的 HTML 檔案中。
+        </p>
+        
+        <button class="btn-primary" id="btn-download" data-i18n="btn-download" onclick="generateAndDownload()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          下載獨立 HTML 檔案
+        </button>
+      </div>
+
+      <!-- Google Sites 嵌入指引 -->
+      <div class="card">
+        <h2 class="card-title" data-i18n="guide-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Google Sites 嵌入步驟指引
+        </h2>
+        
+        <div class="guide-step">
+          <div class="guide-num">1</div>
+          <div class="guide-text">
+            <h4 data-i18n="guide1-h">輸入資料並下載檔案</h4>
+            <p data-i18n="guide1-p">設定好本科科名、練習標題、作答模式、配色，並貼上 Excel 複製之題庫後，點擊「下載獨立 HTML 檔案」取得 .html 檔。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">2</div>
+          <div class="guide-text">
+            <h4 data-i18n="guide2-h">複製 HTML 代碼</h4>
+            <p data-i18n="guide2-p">用電腦內置的「記事本」(Notepad) 或文字編輯器開啟下載的 .html 檔案，按下 <code>Ctrl + A</code> 全選，再按下 <code>Ctrl + C</code> 複製全部內容。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">3</div>
+          <div class="guide-text">
+            <h4 data-i18n="guide3-h">在 Google Sites 嵌入</h4>
+            <p data-i18n="guide3-p">打開您的 Google Sites 協作平台編輯介面。點擊右側面板的「插入」 &gt; 「嵌入 (&lt;&gt;)」。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">4</div>
+          <div class="guide-text">
+            <h4 data-i18n="guide4-h">貼上程式碼</h4>
+            <p data-i18n="guide4-p">在彈出的視窗中切換到「嵌入程式碼」分頁，將剛才複製的程式碼貼入，點擊「下一步」並按「插入」。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">5</div>
+          <div class="guide-text">
+            <h4 data-i18n="guide5-h">拖曳調整版面</h4>
+            <p data-i18n="guide5-p">拖曳調整嵌入區塊的大小，使其完美符合測驗高度。發佈網頁，即可與學生分享！</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>香港道教聯合會圓玄學院第三中學 · HKTA The Yuen Yuen Institute No.3 Secondary School · AI in Education</p>
+  </footer>
+
+  <script>
+    // 色彩主題設定
+    const themeConfigs = {
+      'sky-blue': {
+        primary: '#0284c7',
+        primaryHover: '#0369a1',
+        primaryLight: '#e0f2fe',
+        bgGradientStart: '#f0f9ff',
+        bgGradientEnd: '#e0f2fe',
+        accentBg: '#bae6fd',
+        shadowColor: 'rgba(2, 132, 199, 0.15)'
+      },
+      'classic-green': {
+        primary: '#16a34a',
+        primaryHover: '#15803d',
+        primaryLight: '#f0fdf4',
+        bgGradientStart: '#f0fdf4',
+        bgGradientEnd: '#dcfce7',
+        accentBg: '#bbf7d0',
+        shadowColor: 'rgba(22, 163, 74, 0.15)'
+      },
+      'vibrant-orange': {
+        primary: '#ea580c',
+        primaryHover: '#c2410c',
+        primaryLight: '#fff7ed',
+        bgGradientStart: '#fff7ed',
+        bgGradientEnd: '#ffedd5',
+        accentBg: '#fed7aa',
+        shadowColor: 'rgba(234, 88, 12, 0.15)'
+      },
+      'elegant-purple': {
+        primary: '#7c3aed',
+        primaryHover: '#6d28d9',
+        primaryLight: '#f5f3ff',
+        bgGradientStart: '#f5f3ff',
+        bgGradientEnd: '#ede9fe',
+        accentBg: '#ddd6fe',
+        shadowColor: 'rgba(124, 58, 237, 0.15)'
+      }
+    };
+
+    let currentInterfaceLang = 'zh';
+
+    const translations = {
+      zh: {
+        'app-title': '<span>MC 選擇題練習產生器</span>',
+        'app-subtitle': 'MC Exercise Generator for Google Sites - 專為老師設計的一鍵 Excel 轉網頁工具',
+        'step1-title': '<span class="step-badge">1</span>設定練習參數 / Configuration',
+        'label-subject': '科目名稱 (Subject)',
+        'label-title': '練習標題 (Practice Title)',
+        'label-filename': '匯出檔案名稱 (File Name)',
+        'label-mode': '學生作答模式 (Quiz Mode)',
+        'label-theme': '主顏色調 (Theme Color)',
+        'label-lang': '語系模式 (Language Mode)',
+        'step2-title': '<span class="step-badge">2</span>貼上題庫文本 / Paste Question Data',
+        'label-cn-questions': '貼上中文題庫 (Excel 複製格式):',
+        'label-en-questions': '貼上英文題庫 (Excel 複製格式):',
+        'btn-load-cn': '載入中文範本',
+        'btn-load-en': '載入英文範本',
+        'format-hint': '<strong>Excel 格式說明：</strong> 請在 Excel 中依序安排欄位：<code>A:題目</code>, <code>B:選項A</code>, <code>C:選項B</code>, <code>D:選項C</code>, <code>E:選項D</code>, <code>F:標準答案(A/B/C/D)</code>, <code>G:解析(選填)</code>。複製所有資料列（請勿包含標題列），直接貼上到上方區塊。',
+        'step3-title': '<span class="step-badge">3</span>生成與匯出 / Export',
+        'step3-desc': '產生器會將題庫與選定模式編譯入一個單一且離線可用的 HTML 檔案中。',
+        'btn-download': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>下載獨立 HTML 檔案`,
+        'guide-title': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>Google Sites 嵌入步驟指引`,
+        'guide1-h': '輸入資料並下載檔案',
+        'guide1-p': '設定好本科科名、練習標題、作答模式、配色，並貼上 Excel 複製之題庫後，點擊「下載獨立 HTML 檔案」取得 .html 檔。',
+        'guide2-h': '複製 HTML 代碼',
+        'guide2-p': '用電腦內置的「記事本」(Notepad) 或文字編輯器開啟下載的 .html 檔案，按下 <code>Ctrl + A</code> 全選，再按下 <code>Ctrl + C</code> 複製全部內容。',
+        'guide3-h': '在 Google Sites 新增全頁嵌入網頁',
+        'guide3-p': '打開您的 Google Sites 協作平台編輯介面。在右側面板切換至「頁面」分頁，將滑鼠懸停在底部的「+」號上，點擊「新增全頁嵌入網頁」 (</> 標籤)。',
+        'guide4-h': '貼上 HTML 程式碼',
+        'guide4-p': '輸入頁面名稱（如：練習測驗）並點擊「完成」。在頁面中點擊「新增嵌入內容」，切換至「嵌入程式碼」分頁並貼入剛才複製的程式碼，點擊「下一步」並按「插入」。',
+        'guide5-h': '發佈並與學生分享',
+        'guide5-p': '全頁嵌入會自動 100% 填滿整個瀏覽器畫面，無需手動調整高度。最後點擊右上角的「發佈」按鈕，即可將網頁分享給學生！',
+        'placeholder-subject': '例如：中三經濟科, S3 Economics',
+        'placeholder-title': '經濟科測驗, Demand & Supply Quiz',
+        'placeholder-filename': '例如：econ_mc_practice',
+        'placeholder-cn-questions': '題目\t選項A\t選項B\t選項C\t選項D\t答案\t解析\n(直接從 Excel 框選複製，貼到這裡，欄位以 Tab 分隔)',
+        'placeholder-en-questions': 'Question\tOption A\tOption B\tOption C\tOption D\tAns\tExplanation\n(Copy from Excel and paste here, separated by Tabs)',
+        'opt-mode-all': '一次顯示全部 (Show All Questions)',
+        'opt-mode-one': '一題一頁模式 (One Question per Page)',
+        'opt-mode-random10': '隨機抽 10 題模式 (Random 10 Questions)',
+        'opt-theme-sky-blue': '科技藍 (Sky Blue)',
+        'opt-theme-classic-green': '經典綠 (Classic Green)',
+        'opt-theme-vibrant-orange': '活力橘 (Vibrant Orange)',
+        'opt-theme-elegant-purple': '優雅紫 (Elegant Purple)',
+        'opt-lang-zh': '繁體中文 (Traditional Chinese)',
+        'opt-lang-en': 'English (英文)',
+        'opt-lang-bilingual': '中英雙語切換 (Bilingual Switch)',
+        'label-order': '題目及選項順序 (Question & Option Order)',
+        'opt-order-original': '按題庫固定順序 (Keep original order)',
+        'opt-order-shuffle': '學生每次作答隨機打亂 (Randomize questions & options)',
+        'label-passing-score': '證書頒發門檻 (Certificate Passing Threshold)',
+        'opt-passing-0': '完成即可頒發 (Generate on completion)',
+        'opt-passing-50': '答對 50% 或以上 (50% or above correct)',
+        'opt-passing-60': '答對 60% 或以上 (60% or above correct)',
+        'opt-passing-70': '答對 70% 或以上 (70% or above correct)',
+        'opt-passing-80': '答對 80% 或以上 (80% or above correct)',
+        'opt-passing-90': '答對 90% 或以上 (90% or above correct)',
+        'opt-passing-100': '必須答對 100% (Perfect score 100%)',
+        
+        // 警報與錯誤訊息
+        'error-empty-cn': '請貼上中文題庫資料。',
+        'error-empty-en': '請貼上英文題庫資料。',
+        'confirm-bilingual-mismatch': '警告：中文題數 ({cnLen}) 與英文題數 ({enLen}) 不一致。將以中文題庫長度為主，超出或不足之英文題可能顯示為空。是否繼續？',
+        'error-field-short': '第 {row} 行欄位不足。必須至少包含：題目、選項A、選項B、選項C、選項D、標準答案。',
+        'error-ans-format': '第 {row} 行答案格式錯誤：「{ans}」。必須是 A, B, C 或 D。',
+        'error-ans-empty': '第 {row} 行答案不可為空。'
+      },
+      en: {
+        'app-title': '<span>MC Question Generator</span>',
+        'app-subtitle': 'MC Exercise Generator for Google Sites - One-click Excel-to-web tool designed for teachers',
+        'step1-title': '<span class="step-badge">1</span>Configure Exercise Parameters',
+        'label-subject': 'Subject Name',
+        'label-title': 'Exercise Title',
+        'label-filename': 'Export Filename',
+        'label-mode': 'Student Answer Mode',
+        'label-theme': 'Theme Color',
+        'label-lang': 'Language Mode',
+        'step2-title': '<span class="step-badge">2</span>Paste Question Bank Text',
+        'label-cn-questions': 'Paste Chinese Question Bank (Excel format):',
+        'label-en-questions': 'Paste English Question Bank (Excel format):',
+        'btn-load-cn': 'Load Chinese Sample',
+        'btn-load-en': 'Load English Sample',
+        'format-hint': '<strong>Excel Format Instruction:</strong> Arrange columns in Excel as: <code>A: Question</code>, <code>B: Option A</code>, <code>C: Option B</code>, <code>D: Option C</code>, <code>E: Option D</code>, <code>F: Correct Answer (A/B/C/D)</code>, <code>G: Explanation (Optional)</code>. Copy all rows (do not include the header row) and paste them directly into the text area above.',
+        'step3-title': '<span class="step-badge">3</span>Generate & Export',
+        'step3-desc': 'The generator will compile the question bank and the selected settings into a single, self-contained, offline-capable HTML file.',
+        'btn-download': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>Download Standalone HTML File`,
+        'guide-title': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>Google Sites Embedding Guide`,
+        'guide1-h': 'Input Data and Download',
+        'guide1-p': 'Configure the subject name, exercise title, answer mode, theme color, paste your question bank from Excel, and then click "Download Standalone HTML File" to get the .html file.',
+        'guide2-h': 'Copy HTML Code',
+        'guide2-p': 'Open the downloaded .html file using "Notepad" or another text editor, press <code>Ctrl + A</code> to select all, and then press <code>Ctrl + C</code> to copy the entire content.',
+        'guide3-h': 'Add Embed Page in Google Sites',
+        'guide3-p': 'Open your Google Sites editing interface. Switch to the "Pages" tab on the right panel, hover over the "+" icon at the bottom, and click "New embed page" (</> icon).',
+        'guide4-h': 'Paste HTML Code',
+        'guide4-p': 'Enter a name for the page (e.g. revision quiz) and click "Done". Click "Add embed" on the page, switch to the "Embed code" tab, paste your copied code, click "Next", and then click "Insert".',
+        'guide5-h': 'Publish and Share',
+        'guide5-p': 'The full page embed will automatically fill 100% of the screen without manual height adjustment. Finally, click "Publish" at the top right to share the quiz with your students!',
+        'placeholder-subject': 'e.g. S3 Economics',
+        'placeholder-title': 'e.g. Demand & Supply Quiz',
+        'placeholder-filename': 'e.g. econ_mc_practice',
+        'placeholder-cn-questions': 'Question\tOption A\tOption B\tOption C\tOption D\tAns\tExplanation\n(Copy from Excel and paste here, separated by Tabs)',
+        'placeholder-en-questions': 'Question\tOption A\tOption B\tOption C\tOption D\tAns\tExplanation\n(Copy from Excel and paste here, separated by Tabs)',
+        'opt-mode-all': 'Show All Questions',
+        'opt-mode-one': 'One Question per Page',
+        'opt-mode-random10': 'Random 10 Questions',
+        'opt-theme-sky-blue': 'Sky Blue',
+        'opt-theme-classic-green': 'Classic Green',
+        'opt-theme-vibrant-orange': 'Vibrant Orange',
+        'opt-theme-elegant-purple': 'Elegant Purple',
+        'opt-lang-zh': 'Traditional Chinese',
+        'opt-lang-en': 'English',
+        'opt-lang-bilingual': 'Bilingual Switch',
+        'label-order': 'Question & Option Order',
+        'opt-order-original': 'Keep original order',
+        'opt-order-shuffle': 'Randomize questions & options',
+        'label-passing-score': 'Certificate Passing Threshold',
+        'opt-passing-0': 'Generate on completion',
+        'opt-passing-50': '50% or above correct',
+        'opt-passing-60': '60% or above correct',
+        'opt-passing-70': '70% or above correct',
+        'opt-passing-80': '80% or above correct',
+        'opt-passing-90': '90% or above correct',
+        'opt-passing-100': 'Perfect score 100%',
+        
+        // 警報與錯誤訊息
+        'error-empty-cn': 'Please paste the Chinese question bank data.',
+        'error-empty-en': 'Please paste the English question bank data.',
+        'confirm-bilingual-mismatch': 'Warning: The number of Chinese questions ({cnLen}) does not match the number of English questions ({enLen}). It will be based on the Chinese question bank length, and extra or missing English questions may be displayed as empty. Do you want to continue?',
+        'error-field-short': 'Row {row} lacks columns. It must contain at least: Question, Option A, Option B, Option C, Option D, Correct Answer.',
+        'error-ans-format': 'Row {row} answer format error: "{ans}". It must be A, B, C or D.',
+        'error-ans-empty': 'Row {row} answer cannot be empty.'
+      }
+    };
+
+    function toggleInterfaceLanguage() {
+      currentInterfaceLang = currentInterfaceLang === 'zh' ? 'en' : 'zh';
+      applyInterfaceLanguage();
+    }
+
+    function applyInterfaceLanguage() {
+      // 更新按鈕上的文字和 icon
+      const btn = document.getElementById('lang-toggle-btn');
+      if (currentInterfaceLang === 'zh') {
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span>English</span>
+        `;
+        document.documentElement.lang = 'zh-Hant';
+      } else {
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span>繁體中文</span>
+        `;
+        document.documentElement.lang = 'en';
+      }
+
+      // 遍歷所有 data-i18n 屬性的元素
+      const elements = document.querySelectorAll('[data-i18n]');
+      elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[currentInterfaceLang] && translations[currentInterfaceLang][key]) {
+          el.innerHTML = translations[currentInterfaceLang][key];
+        }
+      });
+
+      // 遍歷所有 data-i18n-placeholder 屬性的元素
+      const placeholders = document.querySelectorAll('[data-i18n-placeholder]');
+      placeholders.forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[currentInterfaceLang] && translations[currentInterfaceLang][key]) {
+          el.setAttribute('placeholder', translations[currentInterfaceLang][key]);
+        }
+      });
+    }
+
+    // 監聽語言切換
+    const languageSelect = document.getElementById('language-mode');
+    const textareaWrapper = document.getElementById('textarea-wrapper');
+    const cnInputGroup = document.getElementById('cn-input-group');
+    const enInputGroup = document.getElementById('en-input-group');
+
+    languageSelect.addEventListener('change', function() {
+      const mode = this.value;
+      if (mode === 'zh') {
+        cnInputGroup.style.display = 'block';
+        enInputGroup.style.display = 'none';
+        textareaWrapper.classList.remove('split');
+      } else if (mode === 'en') {
+        cnInputGroup.style.display = 'none';
+        enInputGroup.style.display = 'block';
+        textareaWrapper.classList.remove('split');
+      } else if (mode === 'bilingual') {
+        cnInputGroup.style.display = 'block';
+        enInputGroup.style.display = 'block';
+        textareaWrapper.classList.add('split');
+      }
+      clearError();
+    });
+
+    // 監聽主題色切換，動態調整產生器自身色調
+    const themeSelect = document.getElementById('theme-color');
+    themeSelect.addEventListener('change', function() {
+      const selectedTheme = themeConfigs[this.value];
+      document.documentElement.style.setProperty('--primary-color', selectedTheme.primary);
+      document.documentElement.style.setProperty('--primary-hover', selectedTheme.primaryHover);
+      document.documentElement.style.setProperty('--primary-light', selectedTheme.primaryLight);
+    });
+
+    // 預設範本資料 (經濟科 ECON 範例)
+    const sampleCn = `以下哪一項是經濟學中「稀缺性」的定義？	人類慾望是無限的，但資源是有限的	所有人的基本生存需求無法被滿足	政府無法提供足夠的社會福利	市場上的商品價格過高	A	稀缺性是指相對於人類無限的慾望，可用於生產商品和服務的資源是有限的。
+當某種商品的價格上漲時，在其他條件不變的情況下，其需求量通常會如何變化？	增加	減少	保持不變	先增後減	B	根據需求定律，價格與需求量呈反比關係。當價格上升時，需求量會下降。
+以下哪一項最符合「機會成本」的定義？	生產商品所花費的實際金錢支出	在選擇中被放棄的最高價值選擇	政府徵收的稅款總額	企業獲得的超額利潤	B	機會成本是指在做出選擇時，被放棄的眾多選擇中價值最高的一個。
+本地生產總值（GDP）主要衡量的是什麼？	一個國家或地區在特定時期內生產的所有最終商品與服務的市場價值	政府一年的總稅收收入	一個地區所有市民的個人資產總和	進口商品與出口商品的差額	A	GDP 衡量的是一個經濟體在特定時期內，境內生產的所有最終產品與服務的市場總價值。
+以下哪一項是實行貿易保護主義的常見手段？	降低關稅	取消進口配額限制	開徵進口關稅	實行自由貿易協定	C	開徵關稅或設置配額限制是貿易保護主義的典型手段，旨在限制外國商品進口，保護本地產業。`;
+
+    const sampleEn = `Which of the following best defines "scarcity" in economics?	Human wants are unlimited while resources are limited	Basic survival needs of all humans cannot be met	The government fails to provide sufficient social welfare	Market prices of goods and services are too high	A	Scarcity refers to the basic economic problem that resources are limited whereas human wants are unlimited.
+Under the law of demand, if the price of a good increases (ceteris paribus), what happens to its quantity demanded?	Increases	Decreases	Remains unchanged	Increases then decreases	B	The law of demand states that price and quantity demanded are inversely related. When price rises, quantity demanded falls.
+What is the definition of "opportunity cost"?	The actual monetary cost spent on producing a good	The highest-valued option forgone in making a choice	The total amount of tax revenue collected by the government	The excess profit earned by a firm	B	Opportunity cost is the value of the next best alternative that must be given up when making a decision.
+What does Gross Domestic Product (GDP) primarily measure?	The market value of all final goods and services produced within a country in a specific period	The government's total tax revenue for a year	The sum of personal assets of all citizens in a region	The net difference between imports and exports	A	GDP measures the total market value of all final goods and services produced within an economy during a given time period.
+Which of the following is a common measure of trade protectionism?	Reducing tariffs	Abolishing import quotas	Imposing import tariffs	Implementing free trade agreements	C	Imposing tariffs or quotas is a classic protectionist policy designed to restrict imports and protect domestic industries.`;
+
+    function loadExample(lang) {
+      if (lang === 'cn') {
+        document.getElementById('cn-questions').value = sampleCn;
+        document.getElementById('quiz-subject').value = '經濟科';
+        document.getElementById('quiz-title').value = '經濟學基礎概念測驗';
+        document.getElementById('export-filename').value = 'economics_mc_test';
+        document.getElementById('language-mode').value = 'zh';
+      } else if (lang === 'en') {
+        document.getElementById('en-questions').value = sampleEn;
+        document.getElementById('quiz-subject').value = 'Economics';
+        document.getElementById('quiz-title').value = 'Basic Economics Concepts Test';
+        document.getElementById('export-filename').value = 'economics_mc_test';
+        document.getElementById('language-mode').value = 'en';
+      }
+      clearError();
+    }
+
+    function clearError() {
+      const errBox = document.getElementById('error-message');
+      errBox.style.display = 'none';
+      errBox.innerText = '';
+    }
+
+    function showError(msg) {
+      const errBox = document.getElementById('error-message');
+      errBox.style.display = 'block';
+      errBox.innerText = msg;
+    }
+
+    // 解析 TSV 資料
+    function parseTSV(text) {
+      if (!text.trim()) return [];
+      const lines = text.split(/\r?\n/);
+      const list = [];
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        const cols = line.split('\t');
+        if (cols.length < 6) {
+          throw new Error(translations[currentInterfaceLang]['error-field-short'].replace('{row}', i + 1));
+        }
+        
+        let ans = cols[5].trim().toUpperCase();
+        if (ans.length > 0) {
+          const match = ans.match(/[A-D]/);
+          if (match) {
+            ans = match[0];
+          } else {
+            throw new Error(translations[currentInterfaceLang]['error-ans-format'].replace('{row}', i + 1).replace('{ans}', cols[5]));
+          }
+        } else {
+          throw new Error(translations[currentInterfaceLang]['error-ans-empty'].replace('{row}', i + 1));
+        }
+        
+        list.push({
+          question: cols[0].trim(),
+          options: [
+            cols[1].trim(),
+            cols[2].trim(),
+            cols[3].trim(),
+            cols[4].trim()
+          ],
+          ans: ans,
+          explanation: cols[6] ? cols[6].trim() : ""
+        });
+      }
+      return list;
+    }
+
+    // 生成並下載
+    function generateAndDownload() {
+      clearError();
+      const subject = document.getElementById('quiz-subject').value.trim() || '科目名稱';
+      const title = document.getElementById('quiz-title').value.trim() || '選擇題練習';
+      const filename = document.getElementById('export-filename').value.trim() || 'quiz_practice';
+      const theme = document.getElementById('theme-color').value;
+      const langMode = document.getElementById('language-mode').value;
+      const quizMode = document.getElementById('quiz-mode').value;
+      const orderMode = document.getElementById('order-mode').value;
+      const passingScore = parseInt(document.getElementById('passing-score').value, 10);
+      
+      const cnText = document.getElementById('cn-questions').value;
+      const enText = document.getElementById('en-questions').value;
+      
+      let parsedCn = [];
+      let parsedEn = [];
+      
+      try {
+        if (langMode === 'zh' || langMode === 'bilingual') {
+          if (!cnText.trim()) {
+            throw new Error(translations[currentInterfaceLang]['error-empty-cn']);
+          }
+          parsedCn = parseTSV(cnText);
+        }
+        
+        if (langMode === 'en' || langMode === 'bilingual') {
+          if (!enText.trim()) {
+            throw new Error(translations[currentInterfaceLang]['error-empty-en']);
+          }
+          parsedEn = parseTSV(enText);
+        }
+      } catch (err) {
+        showError(err.message);
+        return;
+      }
+      
+      if (langMode === 'bilingual') {
+        if (parsedCn.length !== parsedEn.length) {
+          const confirmMsg = translations[currentInterfaceLang]['confirm-bilingual-mismatch']
+            .replace('{cnLen}', parsedCn.length)
+            .replace('{enLen}', parsedEn.length);
+          if (!confirm(confirmMsg)) {
+            return;
+          }
+        }
+      }
+      
+      const questionsData = [];
+      const maxLength = Math.max(parsedCn.length, parsedEn.length);
+      
+      for (let i = 0; i < maxLength; i++) {
+        const cnItem = parsedCn[i] || null;
+        const enItem = parsedEn[i] || null;
+        const ans = (cnItem ? cnItem.ans : (enItem ? enItem.ans : 'A'));
+        
+        questionsData.push({
+          cn: cnItem ? { q: cnItem.question, o: cnItem.options, exp: cnItem.explanation } : null,
+          en: enItem ? { q: enItem.question, o: enItem.options, exp: enItem.explanation } : null,
+          ans: ans
+        });
+      }
+
+      const finalHTML = buildQuizHTML(subject, title, theme, langMode, quizMode, orderMode, passingScore, questionsData);
+      
+      const blob = new Blob([finalHTML], { type: 'text/html;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', `${filename}.html`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // 建立學生端測驗網頁模板 (在 build.js 中會被靜態模板字串替換)
+    function buildQuizHTML(subject, title, themeKey, langMode, quizMode, orderMode, passingScore, questionsData) {
+      const theme = themeConfigs[themeKey];
+      const stringifiedData = JSON.stringify(questionsData);
+      
+      /* {{QUIZ_TEMPLATE_STRING}} */
+    }
+  </script>
+</body>
+</html>

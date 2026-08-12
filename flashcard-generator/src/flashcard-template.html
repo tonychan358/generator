@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>/* {{DICT_TITLE}} */ - /* {{DICT_SUBJECT}} */</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* {{QUIZ_CSS}} */
+  </style>
+  <style>
+    :root {
+      --primary-color: /* {{THEME_PRIMARY}} */;
+      --primary-hover: /* {{THEME_PRIMARY_HOVER}} */;
+      --primary-light: /* {{THEME_PRIMARY_LIGHT}} */;
+      --bg-gradient-start: /* {{THEME_BG_START}} */;
+      --bg-gradient-end: /* {{THEME_BG_END}} */;
+      --accent-bg: /* {{THEME_ACCENT_BG}} */;
+      --shadow-color: /* {{THEME_SHADOW_COLOR}} */;
+    }
+  </style>
+</head>
+<body>
+
+  <main>
+    <!-- Welcome Lobby Card -->
+    <div class="flash-card lobby-card" id="lobby-section">
+      <div class="lobby-badge">Revision Flashcard</div>
+      <h2 class="lobby-title">/* {{DICT_TITLE}} */</h2>
+      <p class="lobby-subject">/* {{DICT_SUBJECT}} */</p>
+      
+      <div class="lobby-input-group">
+        <label for="student-name">Student Name</label>
+        <input type="text" id="student-name" placeholder="Enter your name" oninput="toggleStartButton()">
+      </div>
+      
+      <button class="btn-start" id="btn-start-revision" onclick="startRevision()" disabled>Start Revision</button>
+    </div>
+
+    <!-- Active Arena section -->
+    <div id="arena-section" style="display: none; width: 100%;">
+      <!-- Card deck will be inserted here -->
+      <div id="deck-wrapper"></div>
+      
+      <!-- Card navigation (Prev, Indicator, Next) -->
+      <div id="nav-controls-wrapper"></div>
+      
+      <!-- Mastery Buttons -->
+      <div id="mastery-buttons-wrapper"></div>
+    </div>
+
+    <!-- Summary Score/Review card -->
+    <div class="flash-card summary-card" id="summary-section" style="display: none;">
+      <h2>Revision Completed!</h2>
+      <div class="summary-student-name" id="summary-student-display">Student Name</div>
+      
+      <div class="summary-circle-container">
+        <div class="summary-circle" id="summary-circle-el">
+          <span class="summary-percentage" id="summary-score-value">0%</span>
+          <span class="summary-circle-label">Mastery</span>
+        </div>
+      </div>
+      
+      <p class="summary-comment" id="summary-comment-text">Great job! Keep practicing!</p>
+      
+      <div class="summary-stat-box">
+        <div class="summary-stat-item">
+          <span class="summary-stat-num mastered" id="summary-mastered-val">0</span>
+          <span class="summary-stat-label">Mastered</span>
+        </div>
+        <div class="summary-stat-item">
+          <span class="summary-stat-num need-review" id="summary-review-val">0</span>
+          <span class="summary-stat-label">Still Learning</span>
+        </div>
+      </div>
+      
+      <button class="btn-retry" onclick="resetRevision()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+        </svg>
+        <span>Start Again</span>
+      </button>
+      
+      <!-- Revision item review list details -->
+      <div id="review-list-container"></div>
+    </div>
+
+    <!-- Navigation item Grid -->
+    <div class="nav-grid" id="nav-grid-container" style="display: none;"></div>
+  </main>
+
+  <!-- Progress bar floating board -->
+  <div class="stats-progress-container" id="stats-bar" style="display: none;">
+    <span id="progress-text">Card Progress: 0 / 0</span>
+    <span style="gap: 1rem;">
+      <span id="mastered-count-badge"><span class="stat-dot mastered"></span>Mastered: 0</span>
+      <span id="review-count-badge"><span class="stat-dot need-review"></span>Learning: 0</span>
+    </span>
+  </div>
+
+  <footer>
+    <p>香港道教聯合會圓玄學院第三中學 · HKTA The Yuen Yuen Institute No.3 Secondary School</p>
+  </footer>
+
+  <script>
+    // Injected variables
+    const dictAccent = '${dictAccent}';
+    const initialCardFace = '${initialCardFace}';
+    const rawQuestions = ${stringifiedData};
+
+    // {{QUIZ_JS}}
+  </script>
+</body>
+</html>

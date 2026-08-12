@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>English Dictation Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-color: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-light: #e0f2fe;
+      --bg-gradient-start: #f8fafc;
+      --bg-gradient-end: #f1f5f9;
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      
+      --font-outfit: 'Outfit', 'Noto Sans TC', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-outfit);
+      background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.6;
+      padding: 2rem 1.5rem;
+    }
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 2rem auto;
+      text-align: left;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1.5rem;
+    }
+
+    .lang-switcher-btn {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.2s;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      flex-shrink: 0;
+      margin-top: 0.5rem;
+    }
+
+    .lang-switcher-btn:hover {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    header h1 span {
+      background: linear-gradient(90deg, var(--primary-color), #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 0.25rem;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 1.25rem;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card:hover {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .card-title .step-badge {
+      background: var(--primary-color);
+      color: white;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-main);
+    }
+
+    input[type="text"], select, textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border-color);
+      font-family: var(--font-outfit);
+      font-size: 0.95rem;
+      color: var(--text-main);
+      background-color: #f8fafc;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    input[type="text"]:focus, select:focus, textarea:focus {
+      border-color: var(--primary-color);
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .checkbox-item input {
+      width: 1.15rem;
+      height: 1.15rem;
+      cursor: pointer;
+    }
+
+    textarea {
+      height: 250px;
+      resize: vertical;
+      font-family: monospace;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+
+    .textarea-label-wrapper {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .btn-secondary {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border: none;
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.375rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 0.85rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      margin-top: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.2);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px -1px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .guide-step {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px dashed var(--border-color);
+    }
+
+    .guide-step:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .guide-num {
+      background: #f1f5f9;
+      color: var(--text-muted);
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 0.2rem;
+    }
+
+    .guide-text h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .guide-text p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .format-hint {
+      background-color: #f8fafc;
+      border-left: 4px solid var(--primary-color);
+      padding: 0.75rem 1rem;
+      border-radius: 0 0.5rem 0.5rem 0;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.75rem;
+    }
+
+    .format-hint code {
+      background: #e2e8f0;
+      padding: 0.1rem 0.3rem;
+      border-radius: 0.2rem;
+      font-family: monospace;
+      color: #0f172a;
+    }
+
+    .toast-error {
+      background-color: #fef2f2;
+      border: 1px solid #fee2e2;
+      color: #b91c1c;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+      display: none;
+    }
+
+    footer {
+      max-width: 1200px;
+      margin: 3rem auto 0 auto;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1 id="app-title" data-i18n="app-title"><span>英文默書產生器</span></h1>
+      <p id="app-subtitle" data-i18n="app-subtitle">專為 Google Sites 設計的離線英文默書網頁產生器 - 支援網頁 TTS 語音朗讀，Excel 題庫一鍵轉換</p>
+    </div>
+    <button class="lang-switcher-btn" id="lang-toggle-btn" onclick="toggleInterfaceLanguage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="2" y1="12" x2="22" y2="12"></line>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+      </svg>
+      <span>English</span>
+    </button>
+  </header>
+
+  <main class="container">
+    <!-- 左欄: 設定與單字 -->
+    <section>
+      <!-- Step 1: Configuration -->
+      <div class="card">
+        <h2 class="card-title" data-i18n="step1-title">
+          <span class="step-badge">1</span>
+          設定練習參數 / Configuration Settings
+        </h2>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="dict-subject" data-i18n="label-subject">科目名稱 (Subject)</label>
+            <input type="text" id="dict-subject" data-i18n-placeholder="placeholder-subject" placeholder="例如：中二級英文科, S2 English">
+          </div>
+          <div class="form-group">
+            <label for="dict-title" data-i18n="label-title">練習標題 (Practice Title)</label>
+            <input type="text" id="dict-title" data-i18n-placeholder="placeholder-title" placeholder="例如：第三單元單字默書, Unit 3 Vocabulary">
+          </div>
+        </div>
+ 
+        <div class="form-row">
+          <div class="form-group">
+            <label for="export-filename" data-i18n="label-filename">匯出檔案名稱 (File Name)</label>
+            <input type="text" id="export-filename" data-i18n-placeholder="placeholder-filename" placeholder="例如：dictation_unit3">
+          </div>
+          <div class="form-group">
+            <label for="dict-mode" data-i18n="label-mode">默書模式 (Dictation Mode)</label>
+            <select id="dict-mode" onchange="handleModeChange()">
+              <option value="vocab" data-i18n="opt-mode-vocab">單字與片語模式 (Vocabulary & Phrase Mode)</option>
+              <option value="sentence" data-i18n="opt-mode-sentence">句子模式 (Sentence Mode)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="theme-color" data-i18n="label-theme">主顏色調 (Theme Color)</label>
+            <select id="theme-color">
+              <option value="sky-blue" data-i18n="opt-theme-sky-blue">科技藍 (Sky Blue)</option>
+              <option value="classic-green" data-i18n="opt-theme-classic-green">經典綠 (Classic Green)</option>
+              <option value="vibrant-orange" data-i18n="opt-theme-vibrant-orange">活力橘 (Vibrant Orange)</option>
+              <option value="elegant-purple" data-i18n="opt-theme-elegant-purple">優雅紫 (Elegant Purple)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="dict-accent" data-i18n="label-accent">默書朗讀口音 (Dictation Accent)</label>
+            <select id="dict-accent">
+              <option value="US" data-i18n="opt-accent-us">美式英語 (American English - US Accent)</option>
+              <option value="GB" data-i18n="opt-accent-gb">英式英語 (British English - GB Accent)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label data-i18n="label-grading">評分與準確度設定 / Grading & Accuracy</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" id="chk-case-sensitive">
+              <span data-i18n="chk-case">區分大小寫 (Case Sensitive)</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" id="chk-ignore-punctuation">
+              <span data-i18n="chk-punc">忽略標點符號 (Ignore Punctuation)</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Paste Materials -->
+      <div class="card">
+        <h2 class="card-title" data-i18n="step2-title">
+          <span class="step-badge">2</span>
+          貼上默書內容 / Dictation Material
+        </h2>
+        
+        <div class="textarea-container">
+          <div>
+            <div class="textarea-label-wrapper">
+              <label for="dict-questions" data-i18n="label-dict-questions">貼上英文單字/句子與中文提示 (Excel 複製格式):</label>
+              <button class="btn-secondary" id="btn-load-example" data-i18n="btn-load-sample" onclick="loadExample()">載入單字與片語範本</button>
+            </div>
+            <textarea id="dict-questions" data-i18n-placeholder="placeholder-dict-questions" placeholder="英文單字或句子	中文提示/翻譯 (選填)&#10;(直接從 Excel 兩欄框選複製並貼到此處，欄位以 Tab 分隔)"></textarea>
+          </div>
+        </div>
+
+        <div class="format-hint" data-i18n="format-hint">
+          <strong>Excel 匯入說明：</strong>請在 Excel 中準備兩欄：<code>A欄: 英文單字/片語/句子 (必填)</code>, <code>B欄: 中文提示/翻譯 (選填)</code>。複製所有資料列（請勿包含標題列），直接貼上到上方區塊。
+        </div>
+
+        <div class="toast-error" id="error-message"></div>
+      </div>
+    </section>
+
+    <!-- 右欄: 導出與說明 -->
+    <section>
+      <!-- Step 3: Generate and Export -->
+      <div class="card">
+        <h2 class="card-title" data-i18n="step3-title">
+          <span class="step-badge">3</span>
+          生成與匯出 / Export
+        </h2>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;" data-i18n="step3-desc">
+          產生器會將默書內容與設定編譯入一個單一且離線可用的 HTML 檔案中。
+        </p>
+        
+        <button class="btn-primary" id="btn-download" data-i18n="btn-download" onclick="generateAndDownload()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          下載獨立 HTML 檔案
+        </button>
+      </div>
+
+      <!-- Google Sites Embed Instructions -->
+      <div class="card">
+        <h2 class="card-title" data-i18n="guide-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Google Sites 嵌入步驟指引
+        </h2>
+        
+        <div class="guide-step">
+          <div class="guide-num">1</div>
+          <div class="guide-text">
+            <h4 data-i18n="guide1-h">輸入資料並下載檔案</h4>
+            <p data-i18n="guide1-p">設定好本科科名、練習標題、默書模式、朗讀口音、配色，並貼上 Excel 複製之字詞後，點擊「下載獨立 HTML 檔案」取得 .html 檔。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">2</div>
+          <div class="guide-text">
+            <h4 data-i18n="guide2-h">複製 HTML 代碼</h4>
+            <p data-i18n="guide2-p">用電腦內置的「記事本」(Notepad) 或文字編輯器開啟下載的 .html 檔案，按下 <code>Ctrl + A</code> 全選，再按下 <code>Ctrl + C</code> 複製全部內容。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">3</div>
+          <div class="guide-text">
+            <h4 data-i18n="guide3-h">在 Google Sites 新增全頁嵌入網頁</h4>
+            <p data-i18n="guide3-p">打開您的 Google Sites 協作平台編輯介面。在右側面板切換至「頁面」分頁，將滑鼠懸停在底部的「+」號上，點擊「新增全頁嵌入網頁」 (</> 標籤)。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">4</div>
+          <div class="guide-text">
+            <h4 data-i18n="guide4-h">貼上 HTML 程式碼</h4>
+            <p data-i18n="guide4-p">輸入頁面名稱（如：單字默書）並點擊「完成」。在頁面中點擊「新增嵌入內容」，切換至「嵌入程式碼」分頁並貼入剛才複製的程式碼，點擊「下一步」並按「插入」。</p>
+          </div>
+        </div>
+
+        <div class="guide-step">
+          <div class="guide-num">5</div>
+          <div class="guide-text">
+            <h4 data-i18n="guide5-h">發佈並與學生分享</h4>
+            <p data-i18n="guide5-p">全頁嵌入會自動 100% 填滿整個瀏覽器畫面，無需手動調整高度。最後點擊右上角的「發佈」按鈕，即可將網頁分享給學生！</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>香港道教聯合會圓玄學院第三中學 · HKTA The Yuen Yuen Institute No.3 Secondary School · AI in Education</p>
+  </footer>
+
+  <script>
+    // 主題色設定
+    const themeConfigs = {
+      'sky-blue': {
+        primary: '#0284c7',
+        primaryHover: '#0369a1',
+        primaryLight: '#e0f2fe',
+        bgGradientStart: '#f0f9ff',
+        bgGradientEnd: '#e0f2fe',
+        accentBg: '#bae6fd',
+        shadowColor: 'rgba(2, 132, 199, 0.15)'
+      },
+      'classic-green': {
+        primary: '#16a34a',
+        primaryHover: '#15803d',
+        primaryLight: '#f0fdf4',
+        bgGradientStart: '#f0fdf4',
+        bgGradientEnd: '#dcfce7',
+        accentBg: '#bbf7d0',
+        shadowColor: 'rgba(22, 163, 74, 0.15)'
+      },
+      'vibrant-orange': {
+        primary: '#ea580c',
+        primaryHover: '#c2410c',
+        primaryLight: '#fff7ed',
+        bgGradientStart: '#fff7ed',
+        bgGradientEnd: '#ffedd5',
+        accentBg: '#fed7aa',
+        shadowColor: 'rgba(234, 88, 12, 0.15)'
+      },
+      'elegant-purple': {
+        primary: '#7c3aed',
+        primaryHover: '#6d28d9',
+        primaryLight: '#f5f3ff',
+        bgGradientStart: '#f5f3ff',
+        bgGradientEnd: '#ede9fe',
+        accentBg: '#ddd6fe',
+        shadowColor: 'rgba(124, 58, 237, 0.15)'
+      }
+    };
+
+    let currentInterfaceLang = 'en';
+
+    const translations = {
+      zh: {
+        'app-title': '<span>英文默書產生器</span>',
+        'app-subtitle': '專為 Google Sites 設計的離線英文默書網頁產生器 - 支援網頁 TTS 語音朗讀，Excel 題庫一鍵轉換',
+        'step1-title': '<span class="step-badge">1</span>設定練習參數 / Configuration Settings',
+        'label-subject': '科目名稱 (Subject)',
+        'label-title': '練習標題 (Practice Title)',
+        'label-filename': '匯出檔案名稱 (File Name)',
+        'label-mode': '默書模式 (Dictation Mode)',
+        'label-theme': '主顏色調 (Theme Color)',
+        'label-accent': '默書朗讀口音 (Dictation Accent)',
+        'label-grading': '評分與準確度設定 / Grading & Accuracy',
+        
+        'opt-mode-vocab': '單字與片語模式 (Vocabulary & Phrase Mode)',
+        'opt-mode-sentence': '句子模式 (Sentence Mode)',
+        'opt-theme-sky-blue': '科技藍 (Sky Blue)',
+        'opt-theme-classic-green': '經典綠 (Classic Green)',
+        'opt-theme-vibrant-orange': '活力橘 (Vibrant Orange)',
+        'opt-theme-elegant-purple': '優雅紫 (Elegant Purple)',
+        'opt-accent-us': '美式英語 (American English - US Accent)',
+        'opt-accent-gb': '英式英語 (British English - GB Accent)',
+        
+        'chk-case': '區分大小寫 (Case Sensitive)',
+        'chk-punc': '忽略標點符號 (Ignore Punctuation)',
+
+        'step2-title': '<span class="step-badge">2</span>貼上默書內容 / Dictation Material',
+        'label-dict-questions': '貼上英文單字/句子與中文提示 (Excel 複製格式):',
+        'btn-load-sample': '載入單字與片語範本',
+        'btn-load-sample-sentence': '載入句子範本',
+        
+        'placeholder-subject': '例如：中二級英文科, S2 English',
+        'placeholder-title': '例如：第三單元單字默書, Unit 3 Vocabulary',
+        'placeholder-filename': '例如：dictation_unit3',
+        'placeholder-dict-questions': '英文單字或句子	中文提示/翻譯 (選填)\n(直接從 Excel 兩欄框選複製並貼到此處，欄位以 Tab 分隔)',
+
+        'format-hint': '<strong>Excel 匯入說明：</strong>請在 Excel 中準備兩欄：<code>A欄: 英文單字/片語/句子 (必填)</code>, <code>B欄: 中文提示/翻譯 (選填)</code>。複製所有資料列（請勿包含標題列），直接貼上到上方區塊。',
+        
+        'step3-title': '<span class="step-badge">3</span>生成與匯出 / Export',
+        'step3-desc': '產生器會將默書內容與設定編譯入一個單一且離線可用的 HTML 檔案中。',
+        'btn-download': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>下載獨立 HTML 檔案`,
+          
+        'guide-title': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>Google Sites 嵌入步驟指引`,
+        'guide1-h': '輸入資料並下載檔案',
+        'guide1-p': '設定好本科科名、練習標題、默書模式、朗讀口音、配色，並貼上 Excel 複製之字詞後，點擊「下載獨立 HTML 檔案」取得 .html 檔。',
+        'guide2-h': '複製 HTML 代碼',
+        'guide2-p': '用電腦內置的「記事本」(Notepad) 或文字編輯器開啟下載的 .html 檔案，按下 <code>Ctrl + A</code> 全選，再按下 <code>Ctrl + C</code> 複製全部內容。',
+        'guide3-h': '在 Google Sites 新增全頁嵌入網頁',
+        'guide3-p': '打開您的 Google Sites 協作平台編輯介面。在右側面板切換至「頁面」分頁，將滑鼠懸停在底部的「+」號上，點擊「新增全頁嵌入網頁」 (</> 標籤)。',
+        'guide4-h': '貼上 HTML 程式碼',
+        'guide4-p': '輸入頁面名稱（如：單字默書）並點擊「完成」。在頁面中點擊「新增嵌入內容」，切換至「嵌入程式碼」分頁並貼入剛才複製的程式碼，點擊「下一步」並按「插入」。',
+        'guide5-h': '發佈並與學生分享',
+        'guide5-p': '全頁嵌入會自動 100% 填滿整個瀏覽器畫面，無需手動調整高度。最後點擊右上角的「發佈」按鈕，即可將網頁分享給學生！',
+        
+        'error-empty-dict': '請先貼上默書資料。',
+        'error-line-format': '第 {row} 行格式錯誤：英文單字/片語/句子欄位不可為空。'
+      },
+      en: {
+        'app-title': '<span>English Dictation Generator</span>',
+        'app-subtitle': 'English Dictation Generator for Google Sites - Offline TTS reader, one-click Excel/TSV import to standalone web pages.',
+        'step1-title': '<span class="step-badge">1</span>Configuration Settings',
+        'label-subject': 'Subject',
+        'label-title': 'Practice Title',
+        'label-filename': 'Export File Name',
+        'label-mode': 'Dictation Mode',
+        'label-theme': 'Theme Color',
+        'label-accent': 'Dictation Accent',
+        'label-grading': 'Grading & Accuracy Settings',
+        
+        'opt-mode-vocab': 'Vocabulary & Phrase Mode',
+        'opt-mode-sentence': 'Sentence Mode',
+        'opt-theme-sky-blue': 'Sky Blue',
+        'opt-theme-classic-green': 'Classic Green',
+        'opt-theme-vibrant-orange': 'Vibrant Orange',
+        'opt-theme-elegant-purple': 'Elegant Purple',
+        'opt-accent-us': 'American English (US Accent)',
+        'opt-accent-gb': 'British English (GB Accent)',
+        
+        'chk-case': 'Case Sensitive',
+        'chk-punc': 'Ignore Punctuation',
+
+        'step2-title': '<span class="step-badge">2</span>Dictation Material',
+        'label-dict-questions': 'Paste English words/sentences and hints (Excel-copied TSV format):',
+        'btn-load-sample': 'Load Vocabulary & Phrase Example',
+        'btn-load-sample-sentence': 'Load Sentence Example',
+        
+        'placeholder-subject': 'e.g., S2 English',
+        'placeholder-title': 'e.g., Unit 3 Vocabulary, Chapter 4 Sentences',
+        'placeholder-filename': 'e.g., dictation_unit3',
+        'placeholder-dict-questions': 'Word or sentence\tHint/Meaning (Optional)\n(Copy directly from two Excel columns. Fields are tab-separated)',
+
+        'format-hint': '<strong>Excel Import Tip:</strong> Prepare two columns in Excel: <code>Column A: English Word/Phrase/Sentence (Required)</code>, <code>Column B: Hint/Translation (Optional)</code>. (e.g., a word like <code>apple</code> or a phrase like <code>look after</code> are both supported). Copy the rows (without headers) and paste them into the box above.',
+        
+        'step3-title': '<span class="step-badge">3</span>Generate & Export',
+        'step3-desc': 'The generator compiles the dictation content and your settings into a single, offline-ready HTML file.',
+        'btn-download': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>Download Standalone HTML File`,
+          
+        'guide-title': `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>How to Embed in Google Sites`,
+        'guide1-h': 'Configure and Download',
+        'guide1-p': 'Fill in the subject, practice title, mode, and colors. Paste your word list from Excel, then click "Download Standalone HTML File".',
+        'guide2-h': 'Copy HTML Code',
+        'guide2-p': 'Open the downloaded .html file in a text editor (e.g., Notepad or TextEdit), press <code>Ctrl + A</code> to select all, and copy the content with <code>Ctrl + C</code>.',
+        'guide3-h': 'Add Embed Page in Google Sites',
+        'guide3-p': 'Open your Google Sites editing interface. Switch to the "Pages" tab on the right panel, hover over the "+" icon at the bottom, and click "New embed page" (</> icon).',
+        'guide4-h': 'Paste HTML Code',
+        'guide4-p': 'Enter a name for the page (e.g. revision quiz) and click "Done". Click "Add embed" on the page, switch to the "Embed code" tab, paste your copied code, click "Next", and then click "Insert".',
+        'guide5-h': 'Publish and Share',
+        'guide5-p': 'The full page embed will automatically fill 100% of the screen without manual height adjustment. Finally, click "Publish" at the top right to share the quiz with your students!',
+        
+        'error-empty-dict': 'Please paste your dictation material first.',
+        'error-line-format': 'Line {row} format error: The English word or sentence column cannot be empty.'
+      }
+    };
+
+    function toggleInterfaceLanguage() {
+      currentInterfaceLang = currentInterfaceLang === 'zh' ? 'en' : 'zh';
+      applyInterfaceLanguage();
+    }
+
+    function applyInterfaceLanguage() {
+      const btn = document.getElementById('lang-toggle-btn');
+      if (currentInterfaceLang === 'zh') {
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span>English</span>
+        `;
+        document.documentElement.lang = 'zh-Hant';
+      } else {
+        btn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <span>繁體中文</span>
+        `;
+        document.documentElement.lang = 'en';
+      }
+
+      const elements = document.querySelectorAll('[data-i18n]');
+      elements.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[currentInterfaceLang] && translations[currentInterfaceLang][key]) {
+          el.innerHTML = translations[currentInterfaceLang][key];
+        }
+      });
+
+      const placeholders = document.querySelectorAll('[data-i18n-placeholder]');
+      placeholders.forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[currentInterfaceLang] && translations[currentInterfaceLang][key]) {
+          el.setAttribute('placeholder', translations[currentInterfaceLang][key]);
+        }
+      });
+    }
+
+    // 監聽主題色切換
+    const themeSelect = document.getElementById('theme-color');
+    themeSelect.addEventListener('change', function() {
+      const selectedTheme = themeConfigs[this.value];
+      document.documentElement.style.setProperty('--primary-color', selectedTheme.primary);
+      document.documentElement.style.setProperty('--primary-hover', selectedTheme.primaryHover);
+      document.documentElement.style.setProperty('--primary-light', selectedTheme.primaryLight);
+    });
+
+    // 處理默書模式變更
+    function handleModeChange() {
+      const mode = document.getElementById('dict-mode').value;
+      const chkPunctuation = document.getElementById('chk-ignore-punctuation');
+      const btnExample = document.getElementById('btn-load-example');
+      
+      if (mode === 'vocab') {
+        chkPunctuation.checked = false; // 單字預設不忽略標點
+        btnExample.setAttribute('data-i18n', 'btn-load-sample');
+      } else {
+        chkPunctuation.checked = true;  // 句子預設忽略標點
+        btnExample.setAttribute('data-i18n', 'btn-load-sample-sentence');
+      }
+
+      if (translations[currentInterfaceLang] && translations[currentInterfaceLang][btnExample.getAttribute('data-i18n')]) {
+        btnExample.innerHTML = translations[currentInterfaceLang][btnExample.getAttribute('data-i18n')];
+      }
+    }
+
+    // 預設範本
+    const exampleVocab = `apple	蘋果
+banana	香蕉
+chemistry	化學
+photosynthesis	光合作用
+vitamin	維生素
+environment	環境
+computer	電腦
+mathematics	數學`;
+
+    const exampleSentence = `Where is the library?	圖書館在哪裡？
+Practice makes perfect.	熟能生巧。
+Knowledge is power.	知識就是力量。
+Action speaks louder than words.	行動勝於空談。
+The quick brown fox jumps over the lazy dog.	那隻敏捷的棕色狐狸跳過了那隻懶惰的狗。`;
+
+    function loadExample() {
+      const mode = document.getElementById('dict-mode').value;
+      if (mode === 'vocab') {
+        document.getElementById('dict-questions').value = exampleVocab;
+      } else {
+        document.getElementById('dict-questions').value = exampleSentence;
+      }
+      clearError();
+    }
+
+    function clearError() {
+      const errBox = document.getElementById('error-message');
+      errBox.style.display = 'none';
+      errBox.innerText = '';
+    }
+
+    function showError(msg) {
+      const errBox = document.getElementById('error-message');
+      errBox.style.display = 'block';
+      errBox.innerText = msg;
+    }
+
+    // 解析 TSV
+    function parseTSV(text) {
+      if (!text.trim()) return [];
+      const lines = text.split(/\r?\n/);
+      const list = [];
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        const cols = line.split('\t');
+        if (cols.length < 1 || !cols[0].trim()) {
+          throw new Error(translations[currentInterfaceLang]['error-line-format'].replace('{row}', i + 1));
+        }
+        
+        list.push({
+          eng: cols[0].trim(),
+          chi: cols[1] ? cols[1].trim() : ""
+        });
+      }
+      return list;
+    }
+
+    // 生成下載
+    function generateAndDownload() {
+      clearError();
+      const subject = document.getElementById('dict-subject').value.trim() || 'Dictation';
+      const title = document.getElementById('dict-title').value.trim() || 'English Dictation Practice';
+      const filename = document.getElementById('export-filename').value.trim() || 'dictation_practice';
+      const theme = document.getElementById('theme-color').value;
+      const dictAccent = document.getElementById('dict-accent').value;
+      const dictMode = document.getElementById('dict-mode').value;
+      
+      const isCaseSensitive = document.getElementById('chk-case-sensitive').checked;
+      const isIgnorePunctuation = document.getElementById('chk-ignore-punctuation').checked;
+      
+      const qText = document.getElementById('dict-questions').value;
+      let parsedQuestions = [];
+      
+      try {
+        if (!qText.trim()) {
+          throw new Error(translations[currentInterfaceLang]['error-empty-dict']);
+        }
+        parsedQuestions = parseTSV(qText);
+      } catch (err) {
+        showError(err.message);
+        return;
+      }
+
+      const finalHTML = buildDictHTML(subject, title, theme, dictAccent, dictMode, isCaseSensitive, isIgnorePunctuation, parsedQuestions);
+      
+      const blob = new Blob([finalHTML], { type: 'text/html;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute('download', `${filename}.html`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // 將被 build.js 替換為 escapedTemplate
+    function buildDictHTML(subject, title, themeKey, dictAccent, dictMode, isCaseSensitive, isIgnorePunctuation, questionsData) {
+      const theme = themeConfigs[themeKey];
+      const stringifiedData = JSON.stringify(questionsData);
+      
+      /* {{QUIZ_TEMPLATE_STRING}} */
+    }
+
+    // 初始化介面語言
+    applyInterfaceLanguage();
+  </script>
+</body>
+</html>
